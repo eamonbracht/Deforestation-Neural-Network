@@ -1,15 +1,11 @@
 #!/bin/bash
 
 #SBATCH --job-name="t3"
-#SBATCH --output="pytorch.%j.%N.out"
-#SBATCH --error="pytorch.%j.%N.err"
-#SBATCH --partition=solo
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=12
-#SBATCH --cores-per-socket=12
-#SBATCH --mem-per-cpu=1500
+#SBATCH --output="io/pytorch.%j.%N.out"
+#SBATCH --error="io/pytorch.%j.%N.err"
+#SBATCH --partition=gpux4
+#SBACTH --cpu_per_gpu =20
 #SBACTH --wait=0
-#SBATCH --gres=gpu:v100:1
 #SBATCH --export=ALL
 #SBATCH -t 20:00:00
 module load powerai
