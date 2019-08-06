@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#SBATCH --job-name="t3"
+#SBATCH --output="pytorch.%j.%N.out"
+#SBATCH --error="pytorch.%j.%N.err"
+#SBATCH --partition=solo
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=12
+#SBATCH --cores-per-socket=12
+#SBATCH --mem-per-cpu=1500
+#SBACTH --wait=0
+#SBATCH --gres=gpu:v100:1
+#SBATCH --export=ALL
+#SBATCH -t 20:00:00
+module load powerai
+
+#pytorch-install-samples pytorch-samples
+cd ~/deforestation/stnn/
+#rm -r output_heat/stnn_r
+python train_stnn.py --dataset 3km_2018 --outputdir test --manualSeed 2021 --xp stnn_3km_lr --patience 100 --height 100 --width 147 --nepoch 600 --lrsch 25
+#python train_stnn.py --dataset 6km_2018 --outputdir test --manualSeed 5432 --xp stnn_6km_lr_change --patience 100 --height 50 --width 74 --nepoch 600 --lrsch 80
