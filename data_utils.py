@@ -23,18 +23,22 @@ def make_dict(raster, name, years, save=False):
 
     """
     year_dict = {}
-    num_years = years
+    num_years = years+1
     years = range(2000, 2000+num_years)
     yearlabels = [str(year) for year in years]
     input_array = np.copy(raster.arr_raster)
     size = input_array.shape
+    print(input_array[0, 0])
+    input_array[input_array == 0] = -2
     input_array[input_array == -1] = 0
+    input_array[input_array == -2] = -1
+    print(input_array[0, 0])
     for num, val in enumerate(yearlabels):
         temp = np.copy(input_array)
         temp[(temp <= num) & (temp>0)] = 1
-        temp[(temp > num) & (temp<=num_years)] = 0
-        year_dict[val] = np.copy(temp)
-        progress(num, str(int(val)), num_years-1)
+        temp[(temp > num)] = 0
+        year_dict[val] = temp
+        progress(num, str(int(val)), num_years)
 # uncommnet for trouble shooting
 #    print_validation(year_dict)
     if save:
@@ -110,15 +114,12 @@ def dictionary_to_array(data, reshape):
 
     """
     print("Converting dictionary to array")
-    tensor = []
-    for key, value in data.items():
-        tensor.append(value)
-    tensor = np.asarray(tensor)
+    tensor = np.stack(data.values(), 0)
     if reshape:
         print("Flattening")
         tensor = tensor.reshape(15,-1).T
     print("Array success", tensor.shape)
-    return np.uint8(tensor)
+    return tensor
 
 def save_array_to_csv(data, name):
     """Saves array to dictionary.
@@ -150,7 +151,7 @@ def make_relation(type_rel, data, save, combine):
             TODO: Create a way to dynamically select which is best
         data (:int: num rows, :int: num cols): Array specificying the dimensions of the area of interest.
         save (bool): If true, save relational matrix, if False dont.
-        combine (str): If true, flatten arrays into single array. 
+        combine (str): If true, flatten arrays into single array.
 
     Returns:
         Pytorch tensor for cadinality relationship.
@@ -253,7 +254,7 @@ def make_relation(type_rel, data, save, combine):
     if(combine == True):
         out = np.zeros((size, size), dtype = "uint8")
         for i in granular_relations.values():
-            print(i.shape)
+            # print(i.shape)
             out = out + i
         tensor = np.expand_dims(out, axis = 1)
     tensor = torch.from_numpy(tensor)

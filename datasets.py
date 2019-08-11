@@ -2,7 +2,6 @@ import os
 import math
 import numpy as np
 import torch
-#from data_utils import make_dict, load_data, dictionary_to_array, make_relation, reduce_dimensions, print_stats, save_images, show_frame, save_array_to_csv
 import data_utils as du
 from utils import DotDict, normalize
 
@@ -10,7 +9,7 @@ from utils import DotDict, normalize
 def dataset_factory(data_dir, name, height, width, k=1):
     # get dataset
     try:
-        opt, data, relations = heat(data_dir, '{}.csv'.format(name),[height, width])
+        opt, data, relations = import_data(data_dir, '{}.csv'.format(name),[height, width])
     except:
         raise ValueError('Non dataset named `{}`.'.format(name))
     # make k hop
@@ -25,7 +24,7 @@ def dataset_factory(data_dir, name, height, width, k=1):
     return opt, (train_data, test_data), relations
 
 
-def heat(data_dir, file, dims):
+def import_data(data_dir, file, dims):
     # dataset configuration
     print(dims[0], dims[1])
     opt = DotDict()
@@ -38,11 +37,10 @@ def heat(data_dir, file, dims):
     csv = os.path.join(data_dir, file)
     reduced = np.genfromtxt(csv, delimiter = ",")
     print(reduced.shape)
-#    reduced  = reduced.reshape(18, dims[0], dims[1])
     reduced = np.expand_dims(reduced, axis = 2)
     data = torch.from_numpy(reduced)
     data = data.float()
-    x = du.make_relation(["all"], dims, False, False)
+    x = du.make_relation(["all"], dims, save = False, combine = False)
     relations = x.float()
     for i in relations:
     	i = normalize(i).unsqueeze(1)

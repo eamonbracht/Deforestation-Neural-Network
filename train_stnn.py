@@ -56,7 +56,6 @@ p.add('--lrsch', 	type=int, help = 'min rmse before lr can be decresed', default
 p.add('--device',       type=int, default=-1, help='-1: cpu; > -1: cuda device id')
 # -- seed
 p.add('--manualSeed',   type=int, help='manual seed')
-p.add('--predict',      type = str, help = "train model or predict", default = "train")
 p.add('--modeldir',     type = str, help = "directory of model for prediction", default = "")
 # parse
 opt = DotDict(vars(p.parse_args()))
@@ -82,6 +81,7 @@ if opt.device > -1:
 # Data
 #######################################################################
 # -- load data
+
 setup, (train_data, test_data), relations = dataset_factory(opt.datadir, opt.dataset,  opt.height, opt.width, opt.khop)
 train_data = train_data.to(device)
 test_data = test_data.to(device)
@@ -105,10 +105,7 @@ nex_dec = idx_dec.size(1)
 
 model = SaptioTemporalNN(relations, opt.nx, opt.nt_train, opt.nd, opt.nz, opt.mode, opt.nhid, opt.nlayers,
                          opt.dropout_f, opt.dropout_d, opt.activation, opt.periode).to(device)
-if opt.predict == "predict":
-    checkpoint = model.load_state_dict(opt.modeldir)
-    
-    
+
 
 #######################################################################
 # Optimizer
@@ -209,7 +206,7 @@ for e in pb:
     logger.log('test_epoch.rmse', score)
 
 #    logger.log('test_epoch.ts', {t: {'rmse': scr.item()} for t, scr in enumerate(score_ts)})
-    
+
     if (e+1) % 10  == 0:
         print("Epoch {} | train {} | test rmse {}".format(e+1, logs_train['loss'], score))
     # checkpoint
