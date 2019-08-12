@@ -419,7 +419,8 @@ def grid_area(years, ks, save = False, sum = True):
                     resized[year, i, j] = np.mean(inter)
     print(resized.shape)
     if not np.isnan(resized).any() and save:
-        np.savetxt("../data/{}km_2018.csv".format(res), resized.reshape(19, -1), delimiter = ",")
+
+        np.savetxt("data/{}km_2018.csv".format(res), resized.reshape(19, -1), delimiter = ",")
     else:
         if save:
             pass
