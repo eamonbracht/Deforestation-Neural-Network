@@ -3,7 +3,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+Defor - python.ipynb
 # in/out files
 *out
 *err
