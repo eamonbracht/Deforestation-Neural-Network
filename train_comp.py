@@ -144,7 +144,6 @@ def train_network(opt, train_data, test_data, relations):
             x_pred, _ = model.generate(opt.nt - opt.nt_train)
     #        print("x_pred", x_pred.size(), "test_data", test_data.size())
     #        score_ts = rmse(x_pred, test_data, reduce=False)
-            print(x_pred.size(), test_data.size())
             score = rmse(x_pred, test_data)
     #        if (e+1)%50 == 0:
     #            logger.save_pred(x_pred, e)
