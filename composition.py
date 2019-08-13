@@ -75,6 +75,8 @@ for count, area in enumerate(data):
         opt.xp = opt.xp[:-1]
         opt.xp += str(count+1)
     print(opt.xp)
+    if np.sum(area) == 0:
+        continue
     area_tensor = torch.from_numpy(area)
     area_tensor = area_tensor.type(torch.FloatTensor)
     area_tensor = area_tensor.unsqueeze(2)

@@ -42,7 +42,6 @@ def train_network(opt, train_data, test_data, relations):
     # decoder
     idx_dec = torch.stack((t_idx, x_idx)).view(2, -1).to(device)
     nex_dec = idx_dec.size(1)
-
     #######################################################################
     # Model
     #######################################################################
