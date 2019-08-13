@@ -11,7 +11,7 @@ from PIL import Image
 import math
 
 # 0 forested, -1 = deforested
-def make_dict(raster, name, years, save=False):
+def make_dict(raster, name, years, shape = False, save=False):
     """Takes in array of deforestation data and parses it into an set of arrays stored in dictionary for the yearly deofrestation progression for each pixel then pickles and returns that dictionary.
 
     Args:
@@ -29,9 +29,13 @@ def make_dict(raster, name, years, save=False):
     input_array = np.copy(raster.arr_raster)
     size = input_array.shape
     print(input_array[0, 0])
-    input_array[input_array == 0] = -2
-    input_array[input_array == -1] = 0
-    input_array[input_array == -2] = -1
+    if shape:
+        print("maintaining -1's")
+        input_array[input_array == 0] = -2
+        input_array[input_array == -2] = -1
+    else:
+        print("removing -1's")
+        input_array[input_array == -1] = 0
     print(input_array[0, 0])
     for num, val in enumerate(yearlabels):
         temp = np.copy(input_array)
