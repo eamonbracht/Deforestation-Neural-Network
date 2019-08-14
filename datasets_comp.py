@@ -30,6 +30,7 @@ def import_data(data_dir, file, dims, tsize):
     print(reduced.shape)
     data = reduced.reshape(opt.nt,dims[0], dims[1])
     new_dims = [roundup(dims[0], tsize), roundup(dims[1], tsize)]
+    opt.new_dims = new_dims
     step_h = int(new_dims[1]/tsize)
     step_v = int(new_dims[0]/tsize)
     pad_data = np.zeros((opt.nt, new_dims[0], new_dims[1]))
