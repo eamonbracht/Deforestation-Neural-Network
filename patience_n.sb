@@ -6,12 +6,12 @@
 #SBATCH --partition=gpux4
 #SBACTH --cpu_per_gpu =20
 #SBACTH --wait=0
+#SBATCH --gres=gpu:v100:2
 #SBATCH --export=ALL
 #SBATCH -t 20:00:00
 module load powerai
-
-#pytorch-install-samples pytorch-samples
-cd ~/deforestation/stnn/
+cd ~/deforestation/Deforestation-Neural-Network/
 #rm -r output_heat/stnn_r
-python train_stnn.py --dataset 3km_2018 --outputdir test --manualSeed 2021 --xp stnn_3km_lr --patience 100 --height 100 --width 147 --nepoch 600 --lrsch 25
-#python train_stnn.py --dataset 6km_2018 --outputdir test --manualSeed 5432 --xp stnn_6km_lr_change --patience 100 --height 50 --width 74 --nepoch 600 --lrsch 80
+#python train_stnn.py --dataset 3km_2018 --outputdir test --manualSeed 2021 --xp 3kmgputest --patience 100 --height 100 --width 147 --nepoch 600 --mode refine --lrsch 25
+python train_stnn.py --dataset 6km_2018 --outputdir test --manualSeed 5432 --xp gputest_r --patience 100 --height 50 --width 74 --nepoch 600 --lrsch 80 --device 1 --mode refine
+#python test.py

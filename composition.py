@@ -72,7 +72,10 @@ for count, area in enumerate(data):
     if count == 0:
         opt.xp += ("_"+str(count+1))
     else:
-        opt.xp = opt.xp[:-1]
+        if count > 9:
+            opt.xp = opt.xp[:-2]
+        else:
+            opt.xp = opt.xp[:-1]
         opt.xp += str(count+1)
     print(opt.xp)
     if np.sum(area) == 0:
