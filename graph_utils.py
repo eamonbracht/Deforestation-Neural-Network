@@ -2,6 +2,8 @@ from raster import Raster
 import shapefile as shp
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+import re
 from matplotlib_scalebar.scalebar import ScaleBar
 
 def graph_fancy(data, res, year, title, bars):
@@ -43,5 +45,24 @@ def graph_fancy(data, res, year, title, bars):
             # l[k] to l[k + 1] is the range of points that make this component
             ax.plot(x[l[k]:l[k + 1]],y[l[k]:l[k + 1]], 'k-', linewidth=1)
 
-    # display
-    # fig.show()
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    return [ atoi(c) for c in re.split(r'(\d+)$', text) ]
+
+def get_directories(dir):
+    test = [''.join(x[0].split("/")[-1:]) for x in os.walk(os.path.join('test', dir))]
+    directories = []
+    digits = []
+    for i in test:
+        if i[0].isdigit():
+            digits.append(i[0])
+            directories.append(i)
+    digits = np.unique(digits)
+    sdirects = {}
+    for i in digits:
+        sdirects["{}km_2018".format(i)] = list(filter(lambda x: x[0] == str(i), directories))
+    for i, x in sdirects.items():
+        x.sort(key=natural_keys)
+    return sdirects
