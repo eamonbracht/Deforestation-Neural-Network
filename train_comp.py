@@ -18,11 +18,8 @@ from stnn import SaptioTemporalNN
 
 def train_network(opt, train_data, test_data, relations):
     # cudnn
-    if opt.device > -1:
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(opt.device)
-        device = torch.device('cuda:0')
-    else:
-        device = torch.device('cpu')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     # seed
     if opt.manualSeed is None:
         opt.manualSeed = random.randint(1, 10000)
@@ -30,26 +27,32 @@ def train_network(opt, train_data, test_data, relations):
     torch.manual_seed(opt.manualSeed)
     if opt.device > -1:
         torch.cuda.manual_seed_all(opt.manualSeed)
-    train_data = train_data.to(device)
-    test_data = test_data.to(device)
-    relations = relations.to(device)
     # -- train inputs
     t_idx = torch.arange(opt.nt_train, out=torch.LongTensor()).unsqueeze(1).expand(opt.nt_train, opt.nx).contiguous()
     x_idx = torch.arange(opt.nx, out=torch.LongTensor()).expand_as(t_idx).contiguous()
     # dynamic
     idx_dyn = torch.stack((t_idx[1:], x_idx[1:])).view(2, -1).to(device)
-    nex_dyn = idx_dyn.size(1)
     # decoder
-    idx_dec = torch.stack((t_idx, x_idx)).view(2, -1).to(device)
+    idx_dec = torch.stack((t_idx, x_idx)).view(2, -1).to(devive)
     nex_dec = idx_dec.size(1)
+    if opt.datagpu == 'true':
+        train_data = train_data.to(device)
+        test_data = test_data.to(device)
+        relations = relations.to(device)
+        # idx_dyn = idx_dyn.to(device)
+        # idx_dec = idx_dec.to(device)
+
     #######################################################################
     # Model
     #######################################################################
 
     model = SaptioTemporalNN(relations, opt.nx, opt.nt_train, opt.nd, opt.nz, opt.mode, opt.nhid, opt.nlayers,
-                             opt.dropout_f, opt.dropout_d, opt.activation, opt.periode).to(device)
+                             opt.dropout_f, opt.dropout_d, opt.activation, opt.periode)
+    if torch.cuda.device_count() > 1:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = nn.DataParallel(model)
 
-
+    model.to(device)
     #######################################################################
     # Optimizer
     #######################################################################

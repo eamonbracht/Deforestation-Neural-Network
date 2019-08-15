@@ -117,3 +117,8 @@ class SaptioTemporalNN(nn.Module):
     def rel_parameters(self):
         assert self.mode is not None
         yield self.rel_weights
+
+
+class MyDataParallel(nn.DataParallel):
+    def __getattr__(self, name):
+        return getattr(self.module, name)

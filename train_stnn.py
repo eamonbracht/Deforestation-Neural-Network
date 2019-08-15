@@ -53,7 +53,8 @@ p.add('--width',	type=int, help = 'width of dataset', default = 0)
 p.add('--height', 	type=int, help = 'height of dataset', default = 0)
 p.add('--lrsch', 	type=int, help = 'min rmse before lr can be decresed', default = 1)
 # -- gpu
-p.add('--device',       type=int, default=-1, help='-1: cpu; > -1: cuda device id')
+p.add('--device',       type=int, default=1, help='-1: cpu; > -1: cuda device id')
+p.add('--datagpu',  type = float, default = 'false')
 # -- seed
 p.add('--manualSeed',   type=int, help='manual seed')
 p.add('--modeldir',     type = str, help = "directory of model for prediction", default = "")
@@ -63,17 +64,8 @@ opt.mode = opt.mode if opt.mode in ('refine', 'discover') else None
 
 print("training area {}".format(opt.dataset))
 # cudnn
-#if torch.cuda.device_count() > 1:
-#    os.environ["CUDA_VISIBLE_DEVICES"] = str(opt.device)
-#    device = torch.device('cuda:0')
-#else:
-#    device = torch.device('cpu')
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 # seed
-if torch.cuda.device_count() > 1:
-    print("Let's use", torch.cuda.device_count(), "GPUs!")
-else:
-    print("no gpu's")
 if opt.manualSeed is None:
     opt.manualSeed = random.randint(1, 10000)
 random.seed(opt.manualSeed)
@@ -88,9 +80,10 @@ if torch.cuda.device_count()  > -1:
 # -- load data
 
 setup, (train_data, test_data), relations = dataset_factory(opt.datadir, opt.dataset,  opt.height, opt.width, opt.khop)
-train_data = train_data.to(device)
-test_data = test_data.to(device)
-relations = relations.to(device)
+if opt.datagpu == 'true':
+    train_data = train_data.to(device)
+    test_data = test_data.to(device)
+    relations = relations.to(device)
 for k, v in setup.items():
     opt[k] = v
 
@@ -111,7 +104,11 @@ nex_dec = idx_dec.size(1)
 model = SaptioTemporalNN(relations, opt.nx, opt.nt_train, opt.nd, opt.nz, opt.mode, opt.nhid, opt.nlayers,
                          opt.dropout_f, opt.dropout_d, opt.activation, opt.periode).to(device)
 
+if torch.cuda.device_count() > 1:
+    print("Let's use", torch.cuda.device_count(), "GPUs!")
+    model = nn.DataParallel(model)
 
+model.to(device)
 #######################################################################
 # Optimizer
 #######################################################################
@@ -123,12 +120,6 @@ if opt.mode in ('refine', 'discover'):
 optimizer = optim.Adam(params, lr=opt.lr, betas=(opt.beta1, opt.beta2), eps=opt.eps, weight_decay=opt.wd)
 if opt.patience > 0:
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=opt.patience)
-if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-#  model = nn.DataParallel(model)
-
-model.to(device)
 
 #######################################################################
 # Logs

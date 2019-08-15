@@ -54,7 +54,8 @@ p.add('--width',	type=int, help = 'width of dataset', default = 0)
 p.add('--height', 	type=int, help = 'height of dataset', default = 0)
 p.add('--lrsch', 	type=int, help = 'min rmse before lr can be decresed', default = 1)
 # -- gpu
-p.add('--device',       type=int, default=-1, help='-1: cpu; > -1: cuda device id')
+p.add('--device',       type=int, default=1, help='-1: cpu; > -1: cuda device id')
+p.add('--datagpu',  type = str, default = 'false', help = 'store data on gpu')
 # -- seed
 p.add('--manualSeed',   type=int, help='manual seed')
 p.add('--modeldir',     type = str, help = "directory of model for prediction", default = "")
