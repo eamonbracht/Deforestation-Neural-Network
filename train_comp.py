@@ -42,6 +42,7 @@ def train_network(opt, train_data, test_data, relations):
     # decoder
     idx_dec = torch.stack((t_idx, x_idx)).view(2, -1).to(device)
     nex_dec = idx_dec.size(1)
+
     #######################################################################
     # Model
     #######################################################################
@@ -142,7 +143,7 @@ def train_network(opt, train_data, test_data, relations):
         with torch.no_grad():
             x_pred, _ = model.generate(opt.nt - opt.nt_train)
     #        print("x_pred", x_pred.size(), "test_data", test_data.size())
-    #        score_ts = rmse(x_pred, test_data, reduce=False)
+            # score_ts = rmse(x_pred, test_data, reduce=False)
             print(x_pred.size(), test_data.size())
             score = rmse(x_pred, test_data)
     #        if (e+1)%50 == 0:
