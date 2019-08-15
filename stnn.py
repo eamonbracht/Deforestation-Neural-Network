@@ -118,7 +118,12 @@ class SaptioTemporalNN(nn.Module):
         assert self.mode is not None
         yield self.rel_weights
 
+class _CustomDataParallel(nn.DataParallel):
+    def __init__(self, model):
+        super(_CustomDataParallel, self).__init__(model)
 
-class MyDataParallel(nn.DataParallel):
     def __getattr__(self, name):
-        return getattr(self.module, name)
+        try:
+            return super(_CustomDataParallel, self).__getattr__(name)
+        except AttributeError:
+            return getattr(self.module, name)

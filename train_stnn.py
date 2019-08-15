@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 
-
+from stnn import _CustomDataParallel
 from datasets import dataset_factory
 from utils import DotDict, Logger, rmse
 from stnn import SaptioTemporalNN
@@ -54,7 +54,7 @@ p.add('--height', 	type=int, help = 'height of dataset', default = 0)
 p.add('--lrsch', 	type=int, help = 'min rmse before lr can be decresed', default = 1)
 # -- gpu
 p.add('--device',       type=int, default=1, help='-1: cpu; > -1: cuda device id')
-p.add('--datagpu',  type = float, default = 'false')
+p.add('--datagpu',  type = str, default = 'false')
 # -- seed
 p.add('--manualSeed',   type=int, help='manual seed')
 p.add('--modeldir',     type = str, help = "directory of model for prediction", default = "")
@@ -106,7 +106,7 @@ model = SaptioTemporalNN(relations, opt.nx, opt.nt_train, opt.nd, opt.nz, opt.mo
 
 if torch.cuda.device_count() > 1:
     print("Let's use", torch.cuda.device_count(), "GPUs!")
-    model = nn.DataParallel(model)
+    model =_CustomDataParallel(model)
 
 model.to(device)
 #######################################################################
