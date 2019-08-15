@@ -11,7 +11,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 
-
+from stnn import _CustomDataParallel
 from datasets import dataset_factory
 from utils import DotDict, Logger, rmse
 from stnn import SaptioTemporalNN
@@ -32,8 +32,9 @@ def train_network(opt, train_data, test_data, relations):
     x_idx = torch.arange(opt.nx, out=torch.LongTensor()).expand_as(t_idx).contiguous()
     # dynamic
     idx_dyn = torch.stack((t_idx[1:], x_idx[1:])).view(2, -1).to(device)
+    nex_dyn = idx_dyn.size(1)
     # decoder
-    idx_dec = torch.stack((t_idx, x_idx)).view(2, -1).to(devive)
+    idx_dec = torch.stack((t_idx, x_idx)).view(2, -1).to(device)
     nex_dec = idx_dec.size(1)
     if opt.datagpu == 'true':
         train_data = train_data.to(device)
@@ -50,7 +51,7 @@ def train_network(opt, train_data, test_data, relations):
                              opt.dropout_f, opt.dropout_d, opt.activation, opt.periode)
     if torch.cuda.device_count() > 1:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
-        model = nn.DataParallel(model)
+        model =_CustomDataParallel(model)
 
     model.to(device)
     #######################################################################
