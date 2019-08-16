@@ -9,7 +9,7 @@ Defor\ -\ python.ipynb
 *err
 # C extensions
 *.so
-
+*ipynb
 io/
 # Distribution / packaging
 .Python
