@@ -32,6 +32,7 @@ def make_dict(raster, name, years, shape = False, save=False):
     if shape:
         print("maintaining -1's")
         input_array[input_array == 0] = -2
+        input_array[input_array == -1] = 0
         input_array[input_array == -2] = -1
     else:
         print("removing -1's")
