@@ -83,9 +83,9 @@ setup, (train_data, test_data), relations = dataset_factory(opt.datadir, opt.dat
 if opt.datagpu == 'true':
     train_data = train_data.to(device)
     test_data = test_data.to(device)
-    relations = relations.to(device)
 for k, v in setup.items():
     opt[k] = v
+relations = relations.to(device)
 
 # -- train inputs
 t_idx = torch.arange(opt.nt_train, out=torch.LongTensor()).unsqueeze(1).expand(opt.nt_train, opt.nx).contiguous()
@@ -148,6 +148,7 @@ for e in pb:
         input_t = idx_dec[0][batch]
         input_x = idx_dec[1][batch]
         x_target = train_data[input_t, input_x]
+        x_target.to(device)
         # closure
         x_rec = model.dec_closure(input_t, input_x)
         mse_dec = F.mse_loss(x_rec, x_target)
@@ -201,6 +202,7 @@ for e in pb:
         x_pred, _ = model.generate(opt.nt - opt.nt_train)
 #        print("x_pred", x_pred.size(), "test_data", test_data.size())
 #        score_ts = rmse(x_pred, test_data, reduce=False)
+        x_pred.to('cpu')
         score = rmse(x_pred, test_data)
 #        if (e+1)%50 == 0:
 #            logger.save_pred(x_pred, e)
