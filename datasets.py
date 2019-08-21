@@ -40,7 +40,7 @@ def import_data(data_dir, file, dims):
     reduced = np.expand_dims(reduced, axis = 2)
     data = torch.from_numpy(reduced)
     data = data.float()
-    x = du.make_relation(["all"], dims, save = False, combine = True)
+    x = du.make_relation(["all"], dims, save = False, combine = False)
     relations = x.float()
     for i in relations:
     	i = normalize(i).unsqueeze(1)

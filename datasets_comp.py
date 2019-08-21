@@ -55,7 +55,7 @@ def import_data(data_dir, file, dims, tsize):
 
 def get_relations(opt):
     dims = [opt.tsize, opt.tsize]
-    x = du.make_relation(["all"], dims, save = False, combine = False)
+    x = du.make_relation(["all"], dims, save = False, combine = True)
     relations = x.float()
     for i in relations:
     	i = normalize(i).unsqueeze(1)
