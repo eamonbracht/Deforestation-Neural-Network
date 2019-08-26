@@ -19,8 +19,8 @@ def import_data(data_dir, file, dims, tsize):
     # dataset configuration
     print(dims[0], dims[1])
     opt = DotDict()
-    opt.nt = 19
-    opt.nt_train = 16
+    opt.nt = 18
+    opt.nt_train = 15
     opt.nx = tsize**2
     opt.nd = 1
     opt.periode = opt.nt
