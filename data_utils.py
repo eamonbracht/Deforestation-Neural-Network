@@ -11,7 +11,7 @@ from PIL import Image
 import math
 
 # 0 forested, -1 = deforested
-def make_dict(raster, name, years, shape = False, save=False):
+def make_dict(raster, name, years, shape = False, culm = False, save=False):
     """Takes in array of deforestation data and parses it into an set of arrays stored in dictionary for the yearly deofrestation progression for each pixel then pickles and returns that dictionary.
 
     Args:
@@ -38,14 +38,20 @@ def make_dict(raster, name, years, shape = False, save=False):
         print("removing -1's")
         input_array[input_array == -1] = 0
     print(input_array[0, 0])
-    for num, val in enumerate(yearlabels):
-        temp = np.copy(input_array)
-        temp[(temp <= num) & (temp>0)] = 1
-        temp[(temp > num)] = 0
-        year_dict[val] = temp
-        progress(num, str(int(val)), num_years)
-# uncommnet for trouble shooting
-#    print_validation(year_dict)
+    if culm:
+        for num, val in enumerate(yearlabels):
+            temp = np.copy(input_array)
+            temp[(temp <= num) & (temp>0)] = 1
+            temp[(temp > num)] = 0
+            year_dict[val] = temp
+            progress(num, str(int(val)), num_years)
+    else:
+        for num, val in enumerate(yearlabels):
+            temp = np.copy(input_array)
+            temp[(temp != num) & (temp != -1)] = 0
+            temp[temp == num] = 1
+            year_dict[val] = temp
+            progress(num, str(int(val)), num_years)
     if save:
         print("Saving data...")
         name = 'data/'+name+'.pickle'
@@ -401,9 +407,9 @@ def roundup(x, ks):
     print("converting {}   ->   {}".format(x, x_new))
     return x_new
 
-def grid_area(years, ks, save = False, sum = True):
+def grid_area(years, ks, year, save = False, sum = True):
     data_shape = years.shape
-    res = int(30*ks/1000)
+    res = str(round(30*ks/1000, 1)).replace(".", "_")
     print("pixel resolution: {}km".format(res))
     num_years = data_shape[0]
     new_dims = [roundup(data_shape[1], ks), roundup(data_shape[2], ks)]
@@ -425,7 +431,7 @@ def grid_area(years, ks, save = False, sum = True):
     print(resized.shape)
     if not np.isnan(resized).any() and save:
 
-        np.savetxt("data/{}km_2018.csv".format(res), resized.reshape(19, -1), delimiter = ",")
+        np.savetxt("data/{}km_{}.csv".format(res, year), resized.reshape(18, -1), delimiter = ",")
     else:
         if save:
             pass

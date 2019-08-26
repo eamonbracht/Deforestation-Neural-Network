@@ -14,4 +14,4 @@ module load powerai
 #pytorch-install-samples pytorch-samples
 cd ~/deforestation/Deforestation-Neural-Network/
 
-python composition.py --dataset 3km_2018 --outputdir test/comp_long --manualSeed 5718 --xp 4km_stnn_r --mode refine --patience 100 --l1_rel 1e-8 --height 75 --width 111 --nepoch 700 --datagpu true --mode refine
+python composition.py --dataset 3_0km_17 --outputdir test/oneseven --manualSeed 5718 --xp 3km_stnn_r --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine

@@ -12,6 +12,6 @@
 module load powerai
 cd ~/deforestation/Deforestation-Neural-Network/
 #rm -r output_heat/stnn_r
-python train_stnn.py --dataset 3km_2018 --outputdir test/comp_long --manualSeed 2021 --xp 3km_stnn_r_full --patience 100 --height 100 --width 147 --nepoch 700 --mode refine --lrsch 25 --datagpu true
-python train_stnn.py --dataset 6km_2018 --outputdir test/comp_long --manualSeed 8932 --xp 6km_stnn_r_full --patience 100 --height 50 --width 74 --nepoch 700 --mode refine --lrsch 80 --datagpu true
-python train_stnn.py --dataset 3km_2018 --outputdir test/comp_long --manualSeed 7324 --xp 4km_stnn_r_full --patience 100 --height 75 --width 111 --nepoch 700 --mode refine --lrsch 25 --datagpu true
+python train_stnn.py --dataset 3_0km_17 --outputdir test/oneseven --manualSeed 2021 --xp 3km_stnn_r_full --patience 100 --height 100 --width 147 --nepoch 700 --mode refine --lrsch 25 --datagpu true
+python train_stnn.py --dataset 6_0km_17 --outputdir test/oneseven --manualSeed 8932 --xp 6km_stnn_r_full --patience 100 --height 50 --width 74 --nepoch 700 --mode refine --lrsch 80 --datagpu true
+# python train_stnn.py --dataset 3km_2018 --outputdir test/comp_long --manualSeed 7324 --xp 4km_stnn_r_full --patience 100 --height 75 --width 111 --nepoch 700 --mode refine --lrsch 25 --datagpu true

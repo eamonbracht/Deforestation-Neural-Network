@@ -42,7 +42,7 @@ def import_data(data_dir, file, dims, makerel):
     data = torch.from_numpy(reduced)
     data = data.float()
     if makerel:
-        print("faild")
+        print("failed")
         x = du.make_relation(["all"], dims, save = False, combine = False)
         relations = x.float()
         for i in relations:
