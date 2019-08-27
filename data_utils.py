@@ -431,7 +431,7 @@ def grid_area(years, ks, year, save = False, sum = True):
     print(resized.shape)
     if not np.isnan(resized).any() and save:
 
-        np.savetxt("data/{}km_{}.csv".format(res, year), resized.reshape(18, -1), delimiter = ",")
+        np.savetxt("data/{}km_{}.csv".format(res, year), resized.reshape(19, -1), delimiter = ",")
     else:
         if save:
             pass
