@@ -24,7 +24,7 @@ def import_data(data_dir, file, parm):
     opt = DotDict()
     opt.nx = tsize**2
     opt.nd = 1
-    opt.periode = opt.nt
+    opt.periode = parm.nt
     # loading data
     csv = os.path.join(data_dir, file)
     reduced = np.genfromtxt(csv, delimiter = ",")
@@ -34,7 +34,7 @@ def import_data(data_dir, file, parm):
     opt.new_dims = new_dims
     step_h = int(new_dims[1]/tsize)
     step_v = int(new_dims[0]/tsize)
-    pad_data = np.zeros((opt.nt, new_dims[0], new_dims[1]))
+    pad_data = np.zeros((parm.nt, new_dims[0], new_dims[1]))
     xmin = int((new_dims[1] - dims[1])/2)
     xmax = new_dims[1]-(new_dims[1]-dims[1]-xmin)
     ymin = int((new_dims[0] - dims[0])/2)
