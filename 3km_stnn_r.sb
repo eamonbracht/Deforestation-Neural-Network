@@ -4,18 +4,19 @@
 #SBATCH --output="io/pytorch.%j.%N.out"
 #SBATCH --error="io/pytorch.%j.%N.err"
 #SBATCH --partition=gpux4
-#SBACTH --cpu_per_gpu =36
-#SBACTH --wait=0
+#SBACTH --cpu_per_gpu =20
 #SBATCH --gres=gpu:v100:1
 #SBATCH --export=ALL
+#SBATCH -n 5
 #SBATCH -t 36:00:00
 module load powerai
 
 #pytorch-install-samples pytorch-samples
 cd ~/deforestation/Deforestation-Neural-Network/
 
-srun -N 1 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t1 --xp 3km_t1 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 16
-srun -N 2 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t2 --xp 3km_t2 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 15
-srum -N 3 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t3 --xp 3km_t3 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 14
-srun -N 4 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t4 --xp 3km_t4 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 13
-srun -N 1 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t5 --xp 3km_t5 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 12
+srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t1 --xp 3km_t1 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 16 &
+srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t2 --xp 3km_t2 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 15 &
+srum -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t3 --xp 3km_t3 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 14 &
+srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t4 --xp 3km_t4 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 13 &
+srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/lags/t5 --xp 3km_t5 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 12 &
+wait
