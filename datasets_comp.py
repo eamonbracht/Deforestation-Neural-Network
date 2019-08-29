@@ -45,7 +45,7 @@ def import_data(data_dir, file, parm):
     for j in np.arange(0, new_dims[1], tsize):
         for i in np.arange(0, new_dims[0], tsize):
             data = np.expand_dims(pad_data[:, i:i+tsize, j:j+tsize], axis = 0)
-            data = data.reshape(1, parm.nt_data, -1)
+            data = data.reshape(1, parm.nt, -1)
             if count == 0:
                 broken_data = data
             else:
