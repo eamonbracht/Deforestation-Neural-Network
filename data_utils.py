@@ -24,7 +24,7 @@ def make_dict(raster, name, years, shape = False, culm = False, save=False):
     """
     year_dict = {}
     num_years = years+1
-    years = range(2000, 2000+num_years)
+    years = range(2001, 2000+num_years)
     yearlabels = [str(year) for year in years]
     input_array = np.copy(raster.arr_raster)
     size = input_array.shape
@@ -41,15 +41,15 @@ def make_dict(raster, name, years, shape = False, culm = False, save=False):
     if culm:
         for num, val in enumerate(yearlabels):
             temp = np.copy(input_array)
-            temp[(temp <= num) & (temp>0)] = 1
-            temp[(temp > num)] = 0
+            temp[(temp <= (num+1)) & (temp>0)] = 1
+            temp[(temp > (num+1)) & (temp != -1)] = 0
             year_dict[val] = temp
             progress(num, str(int(val)), num_years)
     else:
         for num, val in enumerate(yearlabels):
             temp = np.copy(input_array)
-            temp[(temp != num) & (temp != -1)] = 0
-            temp[temp == num] = 1
+            temp[(temp != (num+1)) & (temp != -1)] = 0
+            temp[(temp == (num+1)) & (temp != 0)] = 1
             year_dict[val] = temp
             progress(num, str(int(val)), num_years)
     if save:
@@ -407,7 +407,7 @@ def roundup(x, ks):
     print("converting {}   ->   {}".format(x, x_new))
     return x_new
 
-def grid_area(years, ks, year, save = False, sum = True):
+def grid_area(years, ks, suffix, save = False, sum = True):
     data_shape = years.shape
     res = str(round(30*ks/1000, 1)).replace(".", "_")
     print("pixel resolution: {}km".format(res))
@@ -429,12 +429,11 @@ def grid_area(years, ks, year, save = False, sum = True):
                 else:
                     resized[year, i, j] = np.mean(inter)
     print(resized.shape)
-    if not np.isnan(resized).any() and save:
-
-        np.savetxt("data/{}km_{}.csv".format(res, year), resized.reshape(19, -1), delimiter = ",")
-    else:
-        if save:
-            pass
-        else:
-            print("array contains Nan's")
+    if save:
+        np.savetxt("data/{}km_{}.csv".format(res, suffix), resized.reshape(18, -1), delimiter = ",")
+    # else:
+    #     if save:
+    #         pass
+    #     else:
+    #         print("array contains Nan's")
     return resized

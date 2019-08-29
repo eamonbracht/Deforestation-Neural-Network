@@ -9,18 +9,19 @@ from data_utils import roundup
 def dataset_factory(parm):
     # get dataset
     try:
-        opt, data = import_data(parm.datadir, '{}.csv'.format(parm.dataset),[parm.height, parm.width], parm.tsize)
+        opt, data = import_data(parm.datadir, '{}.csv'.format(parm.dataset), parm)
     except:
         raise ValueError('Non dataset named `{}`.'.format(parm.dataset))
     print(parm.datadir)
     return opt, data
 
-def import_data(data_dir, file, dims, tsize):
+def import_data(data_dir, file, parm):
     # dataset configuration
+    dims = [parm.height, parm.width]
+    tsize = parm.tsize
+    numtrain = param.nt_train
     print(dims[0], dims[1])
     opt = DotDict()
-    opt.nt = 18
-    opt.nt_train = 15
     opt.nx = tsize**2
     opt.nd = 1
     opt.periode = opt.nt
@@ -44,7 +45,7 @@ def import_data(data_dir, file, dims, tsize):
     for j in np.arange(0, new_dims[1], tsize):
         for i in np.arange(0, new_dims[0], tsize):
             data = np.expand_dims(pad_data[:, i:i+tsize, j:j+tsize], axis = 0)
-            data = data.reshape(1, opt.nt, -1)
+            data = data.reshape(1, parm.nt_data, -1)
             if count == 0:
                 broken_data = data
             else:

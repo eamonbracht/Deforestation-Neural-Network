@@ -25,6 +25,10 @@ p = configargparse.ArgParser()
 # -- data
 p.add('--datadir',      type=str, help='path to dataset', default='data')
 p.add('--dataset',      type=str, help='dataset name', default='heat')
+p.add('--nt_train',     type=int, help = 'number of years to train', default = '14')
+p.add('--nt',           type=int, help = 'number of years total', default = '17')
+p.add('--nt_data',      type=int, help = 'number of years total in data', default = '17')
+
 # -- xp
 p.add('--outputdir',    type=str, help='path to save xp', default='output')
 p.add('--xp',           type=str, help='xp name', default='stnn')
@@ -85,6 +89,8 @@ for count, area in enumerate(data):
     area_tensor = area_tensor.type(torch.FloatTensor)
     area_tensor = area_tensor.unsqueeze(2)
     relations = get_relations(opt)
+    if(opt.nt_data != opt.nt):
+        area_tensor = area_tensor[opt.nt_data-opt.nt:]
     train_data = area_tensor[:opt.nt_train]
     test_data = area_tensor[opt.nt_train:]
     train_comp.train_network(opt, train_data, test_data, relations)
