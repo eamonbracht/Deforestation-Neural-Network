@@ -19,7 +19,7 @@ def import_data(data_dir, file, parm):
     # dataset configuration
     dims = [parm.height, parm.width]
     tsize = parm.tsize
-    numtrain = param.nt_train
+    numtrain = parm.nt_train
     print(dims[0], dims[1])
     opt = DotDict()
     opt.nx = tsize**2
