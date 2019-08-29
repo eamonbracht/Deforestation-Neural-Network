@@ -29,12 +29,12 @@ def import_data(data_dir, file, parm):
     csv = os.path.join(data_dir, file)
     reduced = np.genfromtxt(csv, delimiter = ",")
     print(reduced.shape)
-    data = reduced.reshape(parm.nt,dims[0], dims[1])
+    data = reduced.reshape(parm.nt_data,dims[0], dims[1])
     new_dims = [roundup(dims[0], tsize), roundup(dims[1], tsize)]
     opt.new_dims = new_dims
     step_h = int(new_dims[1]/tsize)
     step_v = int(new_dims[0]/tsize)
-    pad_data = np.zeros((parm.nt, new_dims[0], new_dims[1]))
+    pad_data = np.zeros((parm.nt_data, new_dims[0], new_dims[1]))
     xmin = int((new_dims[1] - dims[1])/2)
     xmax = new_dims[1]-(new_dims[1]-dims[1]-xmin)
     ymin = int((new_dims[0] - dims[0])/2)
@@ -45,7 +45,7 @@ def import_data(data_dir, file, parm):
     for j in np.arange(0, new_dims[1], tsize):
         for i in np.arange(0, new_dims[0], tsize):
             data = np.expand_dims(pad_data[:, i:i+tsize, j:j+tsize], axis = 0)
-            data = data.reshape(1, parm.nt, -1)
+            data = data.reshape(1, parm.nt_data, -1)
             if count == 0:
                 broken_data = data
             else:
@@ -56,7 +56,7 @@ def import_data(data_dir, file, parm):
 
 def get_relations(opt):
     dims = [opt.tsize, opt.tsize]
-    x = du.make_relation(["all"], dims, save = False, combine = True)
+    x = du.make_relation(["all"], dims, save = False, combine = False)
     relations = x.float()
     for i in relations:
     	i = normalize(i).unsqueeze(1)

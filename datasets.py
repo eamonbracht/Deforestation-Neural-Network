@@ -43,7 +43,7 @@ def import_data(data_dir, file, dims, makerel):
     data = data.float()
     if makerel:
         print("failed")
-        x = du.make_relation(["all"], dims, save = False, combine = True)
+        x = du.make_relation(["all"], dims, save = False, combine = False)
         relations = x.float()
         for i in relations:
         	i = normalize(i).unsqueeze(1)
