@@ -30,7 +30,7 @@ def import_data(data_dir, file, dims, makerel):
     print(dims[0], dims[1])
     opt = DotDict()
     opt.nt = 17
-    opt.nt_train = 14
+    opt.nt_train = 12
     opt.nx = dims[0]*dims[1]
     opt.nd = 1
     opt.periode = opt.nt
@@ -43,7 +43,7 @@ def import_data(data_dir, file, dims, makerel):
     data = data.float()
     if makerel:
         print("failed")
-        x = du.make_relation(["all"], dims, save = False, combine = False)
+        x = du.make_relation(["all"], dims, save = False, combine = True)
         relations = x.float()
         for i in relations:
         	i = normalize(i).unsqueeze(1)
