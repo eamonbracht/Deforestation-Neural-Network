@@ -29,7 +29,7 @@ def import_data(data_dir, file, parm):
     csv = os.path.join(data_dir, file)
     reduced = np.genfromtxt(csv, delimiter = ",")
     print(reduced.shape)
-    data = reduced.reshape(opt.nt,dims[0], dims[1])
+    data = reduced.reshape(parm.nt,dims[0], dims[1])
     new_dims = [roundup(dims[0], tsize), roundup(dims[1], tsize)]
     opt.new_dims = new_dims
     step_h = int(new_dims[1]/tsize)
