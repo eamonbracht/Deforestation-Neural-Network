@@ -25,9 +25,9 @@ p = configargparse.ArgParser()
 # -- data
 p.add('--datadir',      type=str, help='path to dataset', default='data')
 p.add('--dataset',      type=str, help='dataset name', default='heat')
-p.add('--nt_train',     type=int, help = 'number of years to train', default = '14')
-p.add('--nt',           type=int, help = 'number of years total', default = '17')
-p.add('--nt_data',      type=int, help = 'number of years you want to use, default = '17')
+p.add('--nt_train',     type=int, help = 'number of years to train', default = 14)
+p.add('--nt',           type=int, help = 'number of years total', default = 17)
+p.add('--nt_data',      type=int, help = 'number of years you want to use, default' = 17)
 
 # -- xp
 p.add('--outputdir',    type=str, help='path to save xp', default='output')
