@@ -24,13 +24,34 @@ def dataset_factory(data_dir, name, height, width, k=1, makerel = True):
     test_data = data[opt.nt_train:]
     return opt, (train_data, test_data), relations
 
+def dataloader_nt(data_dir, name, height, width, nt_data, k=1, makerel = True):
+    # get dataset
+    try:
+        opt, data, relations = import_data(data_dir, '{}.csv'.format(name),[height, width], makerel)
+    except:
+        raise ValueError('Non dataset named `{}`.'.format(name))
+    # make k hop
+    print(data_dir)
+    if makerel:
+        new_rels = [relations]
+        for n in range(k - 1):
+            new_rels.append(torch.stack([new_rels[-1][:, r].matmul(new_rels[0][:, r]) for r in range(relations.size(1))], 1))
+        relations = torch.cat(new_rels, 1)
+    # split train / test
+
+    data = data[opt.nt-nt_data:]
+    opt.nt_train = nt_data-3
+    train_data = data[:opt.nt_train]
+    test_data = data[opt.nt_train:]
+    return opt, (train_data, test_data), relations
+
 
 def import_data(data_dir, file, dims, makerel):
     # dataset configuration
     print(dims[0], dims[1])
     opt = DotDict()
     opt.nt = 17
-    opt.nt_train = 12
+    opt.nt_train = 14
     opt.nx = dims[0]*dims[1]
     opt.nd = 1
     opt.periode = opt.nt

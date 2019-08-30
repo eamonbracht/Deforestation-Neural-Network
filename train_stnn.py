@@ -65,7 +65,6 @@ opt.mode = opt.mode if opt.mode in ('refine', 'discover') else None
 print("training area {}".format(opt.dataset))
 # cudnn
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device("cpu")
 # seed
 if opt.manualSeed is None:
     opt.manualSeed = random.randint(1, 10000)
@@ -201,12 +200,10 @@ for e in pb:
     model.eval()
     with torch.no_grad():
         x_pred, _ = model.generate(opt.nt - opt.nt_train)
-        print("x_pred", x_pred.size(), "test_data", test_data.size())
 #        score_ts = rmse(x_pred, test_data, reduce=False)
 #        x_pred.to('cpu')
         score = rmse(x_pred, test_data)
-#        if (e+1)%50 == 0:
-#            logger.save_pred(x_pred, e)
+        print(score)
     logger.log('test_epoch.rmse', score)
 
 #    logger.log('test_epoch.ts', {t: {'rmse': scr.item()} for t, scr in enumerate(score_ts)})
