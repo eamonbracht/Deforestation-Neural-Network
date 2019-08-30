@@ -18,7 +18,7 @@ cd ~/deforestation/Deforestation-Neural-Network/
 
 #srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/nt/t10 --xp 3km_t1 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 7 --nt 10 &
 #srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/nt/t9 --xp 3km_t2 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 6 --nt 9 &
-srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/nt/t8 --xp 3km_t3 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 5 --nt 8 &
+srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/bs/two50 --xp 3km_t3 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine  --batch_size 250 &
 #srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/nt/t7 --xp 3km_t4 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 4 --nt 7 &
 #srun -N 1 -n 1 python composition.py --dataset 3_0km_2017 --outputdir test/nt/t6 --xp 3km_t5 --mode refine --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 1000 --datagpu true --mode refine --nt_train 3 --nt 6 &
 wait
