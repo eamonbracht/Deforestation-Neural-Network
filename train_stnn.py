@@ -65,6 +65,7 @@ opt.mode = opt.mode if opt.mode in ('refine', 'discover') else None
 print("training area {}".format(opt.dataset))
 # cudnn
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cpu")
 # seed
 if opt.manualSeed is None:
     opt.manualSeed = random.randint(1, 10000)
@@ -81,8 +82,8 @@ if torch.cuda.device_count()  > -1:
 
 setup, (train_data, test_data), relations = dataset_factory(opt.datadir, opt.dataset,  opt.height, opt.width, opt.khop)
 if opt.datagpu == 'true':
-    train_data = train_data.to(device)
     test_data = test_data.to(device)
+    train_data = train_data.to(device)
 for k, v in setup.items():
     opt[k] = v
 relations = relations.to(device)
@@ -200,9 +201,9 @@ for e in pb:
     model.eval()
     with torch.no_grad():
         x_pred, _ = model.generate(opt.nt - opt.nt_train)
-#        print("x_pred", x_pred.size(), "test_data", test_data.size())
+        print("x_pred", x_pred.size(), "test_data", test_data.size())
 #        score_ts = rmse(x_pred, test_data, reduce=False)
-        x_pred.to('cpu')
+#        x_pred.to('cpu')
         score = rmse(x_pred, test_data)
 #        if (e+1)%50 == 0:
 #            logger.save_pred(x_pred, e)
