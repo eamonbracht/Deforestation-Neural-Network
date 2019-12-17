@@ -1,7 +1,5 @@
 import numpy as np
-#from raster import Raster
 import matplotlib.pyplot as plt
-from scipy.misc import imresize
 import pickle
 from utils import *
 import os, sys
@@ -12,7 +10,8 @@ import math
 
 # 0 forested, -1 = deforested
 def make_dict(raster, name, years, shape = False, culm = False, save=False):
-    """Takes in array of deforestation data and parses it into an set of arrays stored in dictionary for the yearly deofrestation progression for each pixel then pickles and returns that dictionary.
+    """Takes in array of deforestation data and parses it into an set of arrays
+    stored in dictionary for the yearly deofrestation progression for each pixel then pickles and returns that dictionary.
 
     Args:
         raster (raster obj): raster from raster class containing the rasterized data.
@@ -413,7 +412,7 @@ def grid_area(years, ks, suffix, save = False, sum = True):
     print("pixel resolution: {}km".format(res))
     num_years = data_shape[0]
     new_dims = [roundup(data_shape[1], ks), roundup(data_shape[2], ks)]
-    new_array = np.zeros((num_years, *new_dims))
+    new_array = np.full((num_years, *new_dims), np.nan)
     print(new_array.shape)
     for year in range(num_years):
         new_array[year, :data_shape[1], :data_shape[2]] = years[year]

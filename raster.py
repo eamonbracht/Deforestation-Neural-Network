@@ -1,12 +1,9 @@
-try:
-    import rasterio
-    import rasterio.plot
-    import pyproj
-    import numpy as np
-    import matplotlib
-    import matplotlib.pyplot as plt
-except ImportError:
-    platform_specific_module = None
+import rasterio
+import rasterio.plot
+import pyproj
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
 #from rasterio.plot import show
 #from rasterio.plot import show_hist
 from rasterio.windows import Window
