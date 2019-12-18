@@ -11,7 +11,7 @@
 #SBATCH -N 1
 #SBATCH -c 1
 #SBATCH -t 36:00:00
-module load powerai
+module load wmlce
 
 #pytorch-install-samples pytorch-samples
 cd ~/deforestation/Deforestation-Neural-Network/
