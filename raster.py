@@ -4,8 +4,6 @@ import pyproj
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-#from rasterio.plot import show
-#from rasterio.plot import show_hist
 from rasterio.windows import Window
 
 
@@ -45,11 +43,9 @@ class Raster:
         """
         if self.is_Window:
             with rasterio.open(self.filepath) as src:
-                w = src.read(1, window = self.raster)
+                self.arr_raster = src.read(1, window = self.raster)
         else:
-            w = self.raster.read(1)
-        self.arr_raster = w
-        return w
+            self.arr_raster = self.raster.read(1, masked = True)
 
     def print_details(self):
         """Print details of raster file.

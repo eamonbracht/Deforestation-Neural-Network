@@ -42,7 +42,7 @@ class SaptioTemporalNN(nn.Module):
         self.dynamic = MLP(nz * self.nr, nhid, nz, nlayers, dropout_d)
         self.decoder = nn.Linear(nz, nd, bias=False)
         if mode == 'refine':
-            self.relations.data = self.relations.data.ceil().clamp(0, 1).byte()
+            self.relations.data = self.relations.data.ceil().clamp(0, 1).bool()
             self.rel_weights = nn.Parameter(torch.Tensor(self.relations.sum().item() - self.nx))
         elif mode == 'discover':
             self.rel_weights = nn.Parameter(torch.Tensor(nx, 1, nx))
