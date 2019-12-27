@@ -1,4 +1,6 @@
 import numpy as np
+import numpy.ma as ma
+import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
 from utils import *
@@ -7,57 +9,40 @@ import torch
 import json
 from PIL import Image
 import math
+import re
+
 
 # 0 forested, -1 = deforested
-def make_dict(raster, name, years, shape = False, culm = False, save=False):
+def expand_years(raster, name = "temp", culm = False, save=False):
     """Takes in array of deforestation data and parses it into an set of arrays
-    stored in dictionary for the yearly deofrestation progression for each pixel then pickles and returns that dictionary.
+    stored in dictionary for the yearly deofrestation progression for each
+    pixel then pickles and returns that dictionary. Array contains 0 for no loss
+    or 1-n corresponding to the principle year of deforestation
 
     Args:
-        raster (raster obj): raster from raster class containing the rasterized data.
+        raster (raster obj): raster from raster class containing the
+            rasterized data.
         name (str): name of file to be saved.
 
     Returns:
-        dictionary with the status of each year, labeled with a eponymous str for that year.
+        dictionary with the status of each year, labeled with a eponymous str
+        for that year.
 
     """
-    year_dict = {}
-    num_years = years+1
-    years = range(2001, 2000+num_years)
-    yearlabels = [str(year) for year in years]
-    input_array = np.copy(raster.arr_raster)
-    size = input_array.shape
-    print(input_array[0, 0])
-    if shape:
-        print("maintaining -1's")
-        input_array[input_array == 0] = -2
-        input_array[input_array == -1] = 0
-        input_array[input_array == -2] = -1
-    else:
-        print("removing -1's")
-        input_array[input_array == -1] = 0
-    print(input_array[0, 0])
-    if culm:
-        for num, val in enumerate(yearlabels):
-            temp = np.copy(input_array)
-            temp[(temp <= (num+1)) & (temp>0)] = 1
-            temp[(temp > (num+1)) & (temp != -1)] = 0
-            year_dict[val] = temp
-            progress(num, str(int(val)), num_years)
-    else:
-        for num, val in enumerate(yearlabels):
-            temp = np.copy(input_array)
-            temp[(temp != (num+1)) & (temp != -1)] = 0
-            temp[(temp == (num+1)) & (temp != 0)] = 1
-            year_dict[val] = temp
-            progress(num, str(int(val)), num_years)
-    if save:
-        print("Saving data...")
-        name = 'data/'+name+'.pickle'
-        with open(name, 'wb') as handle:
-            pickle.dump(year_dict, handle)
-        print("Saved to", name)
-    return year_dict
+    shape = raster.shape
+    print(shape)
+    raster_mask = ma.getmask(raster)
+    num_years = 17
+    years = ma.zeros((num_years, *shape))
+    print(years.shape)
+    for year in range(1, num_years+1):
+        for repl in np.argwhere(raster ==  year):
+            years[year-1, repl[0], repl[1]] = 1
+        years[year-1] = ma.masked_where(raster_mask, years[year-1])
+        years[year-1] = years[year-1].filled(np.nan)
+
+    return years
+
 
 def load_data(name):
     """Unpickles dictionary containing year-over-year defrestation data.
@@ -78,7 +63,8 @@ def load_data(name):
     return(pickle.load(pickleFile))
 
 def print_validation(data):
-    """Helper method used for debugging in make_dict function. For each array craeted, There should only be a 0 and 1's.
+    """Helper method used for debugging in make_dict function. For each array
+    craeted, There should only be a 0 and 1's.
 
     """
     for i, x in data.items():
@@ -88,7 +74,8 @@ def save_images(data, prefix):
     """Converts an array with T time steps into T images and saves them.
 
     Args:
-        data (array): Deforestation state for an area over a set of years. T x m x n
+        data (array): Deforestation state for an area over a set of
+            years. T x m x n
         prefix (str): Unique identifier for saving images to.
 
     Yields:
@@ -109,25 +96,27 @@ def save_images(data, prefix):
 #    os.system("cd animation")
 #    os.system("convert -delay 10 'frame%d.png[2000-n]' output_full.gif")
 
-def dictionary_to_array(data, reshape):
+def dictionary_to_array(data, reshape, n_years):
     """Takes in dictionary and converts to array.
 
     Args:
-        data (dict): Dictionary contains T m x n matricies where T is the number of time steps and m and n are the dimensions of input matrix.
+        data (dict): Dictionary contains T m x n matricies where T is the
+            number of time steps and m and n are the dimensions of input matrix.
         reshape (bool): Flag to indicate if data needs to be flattened.
 
     Returns:
         T x X array where X is the number of time steps.
 
     Note:
-        Data must be flattened or linearized so that all data can be captured in a 2D array.
+        Data must be flattened or linearized so that all data can be captured
+        in a 2D array.
 
     """
     print("Converting dictionary to array")
     tensor = np.stack(data.values(), 0)
     if reshape:
         print("Flattening")
-        tensor = tensor.reshape(15,-1).T
+        tensor = tensor.reshape(n_years,-1).T
     print("Array success", tensor.shape)
     return tensor
 
@@ -146,20 +135,25 @@ def save_array_to_csv(data, name):
     np.savetxt("data/defor"+name+".csv", data, delimiter = ",")
 
 def make_relation(type_rel, data, save, combine):
-    """Function to create binary relationship tensor for data based on cardinality. Creates north, south, east, west, northwest, northeast, southwest and southeast realtions.
+    """Function to create binary relationship tensor for data based on
+    cardinality. Creates north, south, east, west, northwest, northeast,
+    southwest and southeast realtions.
 
     Note:
-        For an m x n area, the output matrix will have shape X x X where X = m*n. Example for north direction:
+        For an m x n area, the output matrix will have shape X x X where
+        X = m*n. Example for north direction:
             Let X have dimensions i, j. i = 1 iff j is north of i.
 
         Matrix is very sparse.
 
-        Returns tensor not array because pytorch has built in normalization that succeeds this step.
+        Returns tensor not array because pytorch has built in normalization
+        that succeeds this step.
 
     Args:
         type_rel (str): Denoting which type of relation to make.
             TODO: Create a way to dynamically select which is best
-        data (:int: num rows, :int: num cols): Array specificying the dimensions of the area of interest.
+        data (int): num rows, :int: num cols): Array specificying the
+            dimensions of the area of interest.
         save (bool): If true, save relational matrix, if False dont.
         combine (str): If true, flatten arrays into single array.
 
@@ -171,11 +165,12 @@ def make_relation(type_rel, data, save, combine):
     size = i*j
     directions = type_rel
     if type_rel[0] == "all":
-        directions = ["north", "south", "east", "west", "northeast", "northwest", "southeast", "southwest"]
+        directions = ["north", "south", "east", "west", "northeast",
+            "northwest", "southeast", "southwest"]
     print("Constructing", directions, "relation", end = "\r")
     granular_relations = {}
     for direc in directions:
-        granular_relations[direc] = np.zeros((size, size), dtype = "uint8")
+        granular_relations[direc] = np.zeros((size, size), dtype = "bool")
     # print("i {} j {}".format(i, j))
     for key, value in granular_relations.items():
         if key == "north":
@@ -262,7 +257,7 @@ def make_relation(type_rel, data, save, combine):
 #    tensor = dictionary_to_array(granular_relations, False)
     tensor = np.stack(granular_relations.values(), 1)
     if(combine == True):
-        out = np.zeros((size, size), dtype = "uint8")
+        out = np.zeros((size, size), dtype = "bool")
         for i in granular_relations.values():
             # print(i.shape)
             out = out + i
@@ -275,7 +270,8 @@ def make_relation(type_rel, data, save, combine):
     return tensor
 
 def show_frame(data, frame):
-    """Simple function that takes in a 3D array and returns a plot of one of the arrrays.
+    """Simple function that takes in a 3D array and returns a plot of one of
+    the arrrays.
 
     Args:
         data (array): 3D array representing year-over-year deforestaiton loss.
@@ -298,14 +294,16 @@ def show_frame(data, frame):
         print("Invalid Frame")
 
 def reduce_dimensions(data, i_size):
-    """Reduce dimension of input vector to make training easier. The input size i, will not be output exactly in_order to maintain dimensionality.
+    """Reduce dimension of input vector to make training easier. The input size
+    i, will not be output exactly in_order to maintain dimensionality.
 
     Args:
         data (array): 3D array consisting of T 2D arrays to be reduced.
         i_size (float): Float point specifying the reduction size.
 
     Returns:
-        3D array consisting of T reduced dimenion arrays with values between 0 and __.
+        3D array consisting of T reduced dimenion arrays with values
+        between 0 and __.
     TODO: Specify largest value
 
     """
@@ -322,13 +320,15 @@ def reduce_dimensions(data, i_size):
     return(reduced_array)
 
 def print_stats(data):
-    """Utility function to print summary statistics about the composition of a 2D array.
+    """Utility function to print summary statistics about the composition
+    of a 2D array.
 
     Args:
         data (array): 2D array containing raw deforestation data.
 
     Note:
-        This only effective after creating raster object but before make_dict but is compatiable with any 2D array.
+        This only effective after creating raster object but before make_dict
+        but is compatiable with any 2D array.
 
     Example:
                 Element             Frequency           Percent
@@ -360,13 +360,15 @@ def print_stats(data):
 
 
 def compile_files(directory):
-    """Given a directory, it will create a json file containing the paths for every csv in the "data" subfolder of that directory
+    """Given a directory, it will create a json file containing the paths for
+    every csv in the "data" subfolder of that directory
 
     Args:
         directory (str): directory of csv files.
 
     Yields:
-        .json file containing all the .csv files saved to the argument directory containing list of files saved in the subfolder data.
+        .json file containing all the .csv files saved to the argument
+        directory containing list of files saved in the subfolder data.
 
     """
     csv_files = []
@@ -382,7 +384,8 @@ def compile_files(directory):
 
 
 def import_json(directory):
-    """Imports json file and returns the list of strings in the "files" section of the json
+    """Imports json file and returns the list of strings in the "files" section
+    of the json
 
     Args:
         directory (str): Directory location of json file.
@@ -406,33 +409,184 @@ def roundup(x, ks):
     print("converting {}   ->   {}".format(x, x_new))
     return x_new
 
-def grid_area(years, ks, suffix, save = False, sum = True):
+
+
+
+def grid_area(years, ks, suffix, save = False):
+    """Function that does a convolutional interpolation of 3D array
+
+    Uses a classic DNN convolutional summation with a stide length equal to the
+    kernel size. Pads the years array, with np.nan's so that each y x dimension
+    so it is a multiple of the kernel.
+
+    Args:
+        years (np array): 3d array of deforestation (years * y * x)
+        ks (int): kernel size - 30 * ks / 1000 = end spatial representation of
+            each pixel.
+        suffix (string): sufffix for csv name, <pixel size>km_<suffix>
+        save (bool): Flag for whether or not to save the return value.
+
+    Returns:
+        An resized representation of the years arguement array. Each pixel
+        represents the sum of all pixels in the years array.
+
+    Example:
+        ks = 2
+        years =     |   1   1   2   2   |
+                    |   1   1   2   2   |
+                    |   3   3   4   4   |
+                    |   3   3   4   4   |
+
+        returns ->  |   4   8    |
+                    |   12  16   |
+
+    """
     data_shape = years.shape
+    print(data_shape)
     res = str(round(30*ks/1000, 1)).replace(".", "_")
     print("pixel resolution: {}km".format(res))
     num_years = data_shape[0]
     new_dims = [roundup(data_shape[1], ks), roundup(data_shape[2], ks)]
-    new_array = np.full((num_years, *new_dims), np.nan)
-    print(new_array.shape)
-    for year in range(num_years):
-        new_array[year, :data_shape[1], :data_shape[2]] = years[year]
-    filt = np.ones((ks, ks))
+    pad_widths = [new_dims[0]-data_shape[1], new_dims[1] - data_shape[2]]
+    new_array = np.pad(years, ((0, 0), (0, pad_widths[0]), (0, pad_widths[1])),
+        'constant', constant_values = (np.nan,))
     trans_shape = [int(i/ks) for i in new_dims]
-    resized = np.zeros((num_years, *trans_shape))
-    for year in range(num_years):
-        for i in range(trans_shape[0]-1):
-            for j in range(trans_shape[1]-1):
-                inter = np.multiply(new_array[year, i*ks:(i+1)*ks, j*ks:(j+1)*ks], filt)
-                if sum:
-                    resized[year, i, j] = np.sum(inter)
-                else:
-                    resized[year, i, j] = np.mean(inter)
-    print(resized.shape)
+    resized = np.full((num_years, *trans_shape), np.nan)
+    for i in range(trans_shape[0]):
+        for j in range(trans_shape[1]):
+            temp = new_array[:, i*ks:(i+1)*ks,
+                j*ks:(j+1)*ks].reshape(num_years, -1)
+            if np.isnan(temp).all():
+                resized[:, i, j] = np.nan
+            else:
+                resized[:, i, j] = np.nansum(temp, axis = 1)
     if save:
-        np.savetxt("data/{}km_{}.csv".format(res, suffix), resized.reshape(18, -1), delimiter = ",")
-    # else:
-    #     if save:
-    #         pass
-    #     else:
-    #         print("array contains Nan's")
+        np.savetxt("data/{}km_{}.csv".format(res, suffix),
+            resized.reshape(num_years, -1), delimiter = ",")
     return resized
+
+
+def recombine_crop(predictions, mp):
+    """Greates a compositional prediction from a set np arrays.
+
+    Args:
+        predictions (dict): A dictionary of 3d numpy arrays representing the
+             forecasted deforestation for each subsected area.
+        opt (DotDict): Dictionary of parameters describing the current model
+            and the prediction space.
+
+    Returns:
+        An array unpad that presents the composed forecast for each year in the
+        predicton range. Visualizes the final position in the array
+
+    """
+    comp = np.zeros((mp.n_pred, *mp.new_dims))
+    quad_dims = [int(x/mp.tsize) for x in mp.new_dims]
+    count = 0
+    for key, i in predictions.items():
+        curval = int(re.findall(r'\d+$', key)[-1])
+        while count+1 != curval:
+            print(" no matching file adding zeros")
+            quadrant = np.zeros((mp.n_pred, mp.tsize, mp.tsize))
+            xpos = int((count)/(quad_dims[1]-1))
+            ypos = int((count)%quad_dims[0])
+            print("appending zeros to y: {}, x: {}".format(ypos, xpos))
+            comp[:, ypos*mp.tsize:(ypos+1)*mp.tsize,
+            xpos*tsize:(xpos+1)*mp.tsize] += quadrant
+            count +=1
+        quadrant = np.asarray(i).reshape(mp.n_pred, mp.tsize, mp.tsize)
+        xpos = int((count)/(quad_dims[1]-1))
+        ypos = int((count)%quad_dims[0])
+        comp[:, ypos*mp.tsize:(ypos+1)*mp.tsize,
+            xpos*mp.tsize:(xpos+1)*mp.tsize] += quadrant
+        count += 1
+    xmin = int((mp.new_dims[1] - mp.shape[1])/2)
+    xmax = mp.new_dims[1]-(mp.new_dims[1]-mp.shape[1]-xmin)
+    ymin = int((mp.new_dims[0] - mp.shape[0])/2)
+    ymax = mp.new_dims[0]-(mp.new_dims[0]-mp.shape[0]-ymin)
+    print("{}:{} \t {}:{}".format(xmin, xmax, ymin, ymax))
+    unpad = comp[:, ymin:ymax, xmin:xmax]
+    plt.imshow(unpad[-1])
+    plt.colorbar()
+    plt.show()
+    return unpad
+
+def exclude_values(mp, data, other_data = None):
+    """Function that sets the values outside of the geographic area to null.
+
+    Args:
+        mp (DotDict): Dictionary of parameters describing the current model
+            and the prediction space. The most important being the exclude_dir
+            parameter used to fetch the values to be excluded
+        data (np array): Array to be modified and excluded.
+        other_data (np array): Optional array of exclude values. If passed,
+            it will override the exclude_dir keep_values
+
+    Returns:
+        Returns array with the positions in the exlcude_dir set to np.nan
+
+    Example:
+        data =          |   1   1   1   1   |
+                        |   1   1   1   1   |
+
+        exclude_dir =   [[0, 1], 0, 3]]
+
+        return =        |   nan 1   1   nan |
+                        |   1   1   1   1   |
+
+    """
+    if other_data is not None:
+        exclude = other_data
+    else:
+        exclude = np.loadtxt(mp.exclude_dir, delimiter = ",", dtype = np.intc)
+    print(exclude.shape)
+    for pos in exclude:
+            data[:, pos[0], pos[1]] = np.nan
+    return data
+
+def lasso_window(x, y, lasso, opt):
+    """
+    """
+    x1 = x - lasso if x > lasso else 0
+    x2 = x + lasso if x + lasso < opt.shape[1] else opt.shape[1]-1
+    y1 = y - lasso if y > lasso else 0
+    y2 = y + lasso if y + lasso < opt.shape[0] else opt.shape[0]-1
+    cx = lasso-1 if x > lasso else x-1
+    cy = lasso-1 if y > lasso else y-1
+    return x1, x2, y1, y2, cx, cy
+
+def data_to_lasso(data, opt, lasso1, lasso2, start_year, out_dir, file_name,
+    save = False):
+    keep_values = np.argwhere(~np.isnan(data[0]))
+    output_data = np.zeros((keep_values.shape[0]*opt.years, lasso2-lasso1+5))
+    idn = 10
+    for pos, (y, x) in enumerate(keep_values):
+        for i in range(opt.years):
+            output_data[pos*opt.years+i, 0:5] = [idn, y, x, start_year+i, data[i, y, x]]
+        for lasso in range(lasso1, lasso2):
+            x1, x2, y1, y2, cx, cy = lasso_window(x, y, lasso, opt)
+            las = data[:, y1:y2, x1:x2]
+            try:
+                las[:, cy, cx] = np.nan
+            except IndexError:
+                print(lasso, x1, x2, y1, y2, cx, cy, x, y)
+            if np.all(np.isnan(las)):
+                mean = [0]*opt.years
+            else:
+                mean = np.nanmean(las.reshape(opt.years, -1) , axis = 1)
+            for i in range(opt.years):
+                output_data[pos*opt.years+i, lasso-lasso1+5] = mean[i]
+        idn+=1
+        print('\r', "{:>5}/{} \t {}%".format(pos, keep_values.shape[0],
+            round(pos/(keep_values.shape[0])*100, 3)), end = "")
+    df = pd.DataFrame(data=output_data)
+    cols = [str(i) for i in range(lasso1, lasso2)]
+    df.columns = ['id2', 'y_c', 'x_c', 'year','gt', *cols]
+    df.fillna(0)
+    df = df.astype({"id2": int,
+                    "y_c": int,
+                    'x_c': int,
+                    'year': int,})
+    if save:
+        df.to_csv(os.path.join(out_dir, file_name+".csv"))
+    return df

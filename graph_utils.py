@@ -4,18 +4,33 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import re
+import matplotlib.colors as colors
 from matplotlib_scalebar.scalebar import ScaleBar
-
-def graph_fancy(data, res, year, title, bars):
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.colors import ListedColormap
+"""
+    **kwargs: res, year, title, bars, norm = None, save = False, error = True, colorbar = False
+"""
+def graph_fancy(data, ax, res, year, title, bars, norm = None, save = False, error = True, colorbar = False, scalebar = True):
     plt.rcParams['scalebar.location']="lower right"
-    plt.rcParams['font.family'] = "sans-serif"
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Tahoma']
+    plt.rcParams['text.usetex'] = False
     #load shapefile
-    sf = shp.Reader('../mich/mich_entidad.shp', encoding="ISO-8859-1")
+    sf = shp.Reader('./shape_files/mich_entidad.shp', encoding="ISO-8859-1")
     dims = data.shape
-    fig, ax = plt.subplots(dpi = 500)
+    ax = ax or plt.gca()
+#     plt.subplots(dpi = 500)
     ax.set_ylim([dims[0], 0])
+    cmap = ListedColormap(["white", "tan", "springgreen", "darkgreen"])
+
     ax.set_xlim([0, dims[1]])
-    im = ax.imshow(data, cmap=plt.get_cmap('Reds'))
+    if norm is not None:
+        im = ax.imshow(data, cmap = cmap,norm = colors.BoundaryNorm(norm, len(norm)), aspect='auto')
+
+    else:
+        im = ax.imshow(data, cmap = cmap, aspect='auto')
+
     if bars:
         ax.set_xticks(np.arange(-.5, dims[1], 1), minor=True)
         ax.set_yticks(np.arange(-.5, dims[0], 1), minor=True)
@@ -23,10 +38,14 @@ def graph_fancy(data, res, year, title, bars):
         ax.grid(which='minor', color='b', linestyle='-', linewidth=.2)
     else:
         ax.axis('off')
-    fig.colorbar(im)
-    scalebar = ScaleBar(res) # 1 pixel = 0.2 meter
-    plt.gca().add_artist(scalebar)
-    fig.suptitle("{}, {}".format(title, year))
+    if scalebar:
+        scalebar = ScaleBar(res) # 1 pixel = 0.2 meter
+        ax.add_artist(scalebar)
+    if title == "" and year != "":
+        ax.set_title("{}".format(year), fontsize = 8)
+    elif title != "":
+        ax.set_title("{}, {}".format(title, year), fontsize = 8)
+
     for shape in sf.shapeRecords():
         # end index of each components of map
         l = shape.shape.parts
@@ -41,9 +60,20 @@ def graph_fancy(data, res, year, title, bars):
         y = [dims[0]-i for i in y]
         l.append(len(x)) # ensure the closure of the last component
         for k in range(len_l):
-            # draw each component of map.
-            # l[k] to l[k + 1] is the range of points that make this component
-            ax.plot(x[l[k]:l[k + 1]],y[l[k]:l[k + 1]], 'k-', linewidth=1)
+            ax.plot(x[l[k]:l[k + 1]],y[l[k]:l[k + 1]], 'k-', linewidth=.4)
+    divider = make_axes_locatable(ax)                          # set size of color bar
+    if colorbar:
+        cax = divider.append_axes("right", size="5%", pad=0.05)    # set size of color bar
+
+        clb = plt.colorbar(im, cax=cax)
+
+        clb.ax.tick_params(labelsize=20)
+        if error:
+            clb.ax.set_title(r'$\frac{\mathrm{pred}-\mathrm{act}}{10000}*100$', fontsize = 20)
+            # clb.ax.tick_params(labelsize=6)
+    if save:
+        plt.savefig("./figs/{}_bilinear_error.png".format(year), bbox_inches = 'tight', dpi = 400)
+    return ax
 
 def atoi(text):
     return int(text) if text.isdigit() else text

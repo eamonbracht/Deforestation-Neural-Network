@@ -183,9 +183,9 @@ for e in pb:
         # step
         optimizer.step()
         # clip
-        # if opt.mode == 'discover' and opt.l1_rel > 0:  # clip
-        #     sign_changed = rel_weights_tmp.sign().ne(model.rel_weights.data.sign())
-        #     model.rel_weights.data.masked_fill_(sign_changed, 0)
+        if opt.mode == 'discover' and opt.l1_rel > 0:  # clip
+            sign_changed = rel_weights_tmp.sign().ne(model.rel_weights.data.sign())
+            model.rel_weights.data.masked_fill_(sign_changed, 0)
         # log
         logger.log('train_iter.mse_dyn', mse_dyn.item())
         logs_train['mse_dyn'] += mse_dyn.item() * len(batch)
