@@ -24,14 +24,13 @@ def dataset_factory(data_dir, name, height, width, k=1, makerel = True):
     test_data = data[opt.nt_train:]
     return opt, (train_data, test_data), relations
 
-def dataloader_nt(data_dir, name, height, width, nt_data, k=1, makerel = True):
+def dataloader_nt(params, k=1, makerel = True):
     # get dataset
     try:
-        opt, data, relations = import_data(data_dir, '{}.csv'.format(name),[height, width], makerel)
+        opt, data, relations = import_data(params.datadir, '{}.csv'.format(params.dataset),[params.shape[0], params.shape[1]], makerel)
     except:
-        raise ValueError('Non dataset named `{}`.'.format(name))
+        raise ValueError('Non dataset named `{}`.'.format(params.dataset))
     # make k hop
-    print(data_dir)
     if makerel:
         new_rels = [relations]
         for n in range(k - 1):
@@ -39,8 +38,8 @@ def dataloader_nt(data_dir, name, height, width, nt_data, k=1, makerel = True):
         relations = torch.cat(new_rels, 1)
     # split train / test
 
-    data = data[opt.nt-nt_data:]
-    opt.nt_train = nt_data-3
+    data = data[opt.nt-params.years:]
+    opt.nt_train = params.years-3
     train_data = data[:opt.nt_train]
     test_data = data[opt.nt_train:]
     return opt, (train_data, test_data), relations

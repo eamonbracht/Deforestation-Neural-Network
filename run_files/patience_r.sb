@@ -13,4 +13,6 @@ module load powerai
 #pytorch-install-samples pytorch-samples
 cd ~/deforestation/stnn/
 #rm -r output_heat/stnn_r
-python train_stnn.py --dataset 6km_2018 --outputdir test --manualSeed 5718 --xp 6km_stnn_r --mode refine --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 600 --lrsch 80
+
+
+python train_stnn.py --dataset 6km_2017 --outputdir output/discovery_6km_dec29 --manualSeed 5718 --xp 6km_stnn_r --mode discovery --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 1000 --lrsch 80
