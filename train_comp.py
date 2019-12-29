@@ -121,16 +121,16 @@ def train_network(opt, train_data, test_data, relations):
             if opt.l2_z > 0:
                 loss_dyn += opt.l2_z * model.factors[input_t - 1, input_x].sub(model.factors[input_t, input_x]).pow(2).mean()
             if opt.mode in('refine', 'discover') and opt.l1_rel > 0:
-                # rel_weights_tmp = model.rel_weights.data.clone()
+                rel_weights_tmp = model.rel_weights.data.clone()
                 loss_dyn += opt.l1_rel * model.get_relations().abs().mean()
             # backward
             loss_dyn.backward()
             # step
             optimizer.step()
             # clip
-            # if opt.mode == 'discover' and opt.l1_rel > 0:  # clip
-            #     sign_changed = rel_weights_tmp.sign().ne(model.rel_weights.data.sign())
-            #     model.rel_weights.data.masked_fill_(sign_changed, 0)
+            if opt.mode == 'discover' and opt.l1_rel > 0:  # clip
+                sign_changed = rel_weights_tmp.sign().ne(model.rel_weights.data.sign())
+                model.rel_weights.data.masked_fill_(sign_changed, 0)
             # log
             logger.log('train_iter.mse_dyn', mse_dyn.item())
             logs_train['mse_dyn'] += mse_dyn.item() * len(batch)
@@ -147,7 +147,6 @@ def train_network(opt, train_data, test_data, relations):
             x_pred, _ = model.generate(opt.nt - opt.nt_train)
     #        print("x_pred", x_pred.size(), "test_data", test_data.size())
             # score_ts = rmse(x_pred, test_data, reduce=False)
-            print(x_pred.size(), test_data.size())
             score = rmse(x_pred, test_data)
     #        if (e+1)%50 == 0:
     #            logger.save_pred(x_pred, e)
