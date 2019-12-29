@@ -412,7 +412,7 @@ def roundup(x, ks):
 
 
 
-def grid_area(years, ks, suffix, save = False):
+def grid_area(years, ks, suffix, save = False, keep_nan = False):
     """Function that does a convolutional interpolation of 3D array
 
     Uses a classic DNN convolutional summation with a stide length equal to the
@@ -460,6 +460,8 @@ def grid_area(years, ks, suffix, save = False):
                 resized[:, i, j] = np.nan
             else:
                 resized[:, i, j] = np.nansum(temp, axis = 1)
+    if keep_nan:
+        resized = np.nan_to_num(resized, 0)
     if save:
         np.savetxt("data/{}km_{}.csv".format(res, suffix),
             resized.reshape(num_years, -1), delimiter = ",")
