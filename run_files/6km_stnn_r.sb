@@ -3,18 +3,12 @@
 #SBATCH --job-name="t3"
 #SBATCH --output="io/pytorch.%j.%N.out"
 #SBATCH --error="io/pytorch.%j.%N.err"
-#SBATCH --partition=gpux4
-#SBACTH --cpu_per_gpu =36
-#SBACTH --wait=0
-#SBATCH --gres=gpu:v100:1
+#SBATCH --partition=gpux2
 #SBATCH --export=ALL
-#SBATCH -t 36:00:00
+#module load wmlce
 module load powerai
-
-#pytorch-install-samples pytorch-samples
 cd ~/deforestation/Deforestation-Neural-Network/
-
-python composition.py --dataset 6_0km_2017 --outputdir output/discovery_6km_dec29 --manualSeed 5718 --xp 6km_stnn_r --mode refine --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode discovery
+python composition.py --dataset 6_0km_2017 --outputdir output/discovery_6km_dec29 --manualSeed 5718 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode discover
 
 #
 # python composition.py --dataset 6_0km_17 --outputdir test/oneseven --manualSeed 5718 --xp 6km_stnn_r --mode refine --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode refine

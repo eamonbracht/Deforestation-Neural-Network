@@ -170,7 +170,7 @@ def make_relation(type_rel, data, save, combine):
     print("Constructing", directions, "relation", end = "\r")
     granular_relations = {}
     for direc in directions:
-        granular_relations[direc] = np.zeros((size, size), dtype = "bool")
+        granular_relations[direc] = np.zeros((size, size), dtype = "float")
     # print("i {} j {}".format(i, j))
     for key, value in granular_relations.items():
         if key == "north":
