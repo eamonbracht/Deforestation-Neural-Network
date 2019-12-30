@@ -3,11 +3,19 @@
 #SBATCH --job-name="discover6km"
 #SBATCH --output="io/pytorch.%j.%N.out"
 #SBATCH --error="io/pytorch.%j.%N.err"
-#SBATCH --partition=gpux2
+#SBATCH --partition=gpux4
 #SBATCH --export=ALL
 #module load wmlce
 module load powerai
 cd ~/deforestation/Deforestation-Neural-Network/
-python composition.py --dataset 6_0km_2017 --outputdir output/discovery_6km_dec29 --manualSeed 5718 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode discover
 
+python composition.py --dataset 6_0km_2017 --outputdir output/discovery_6km_bs250_dec29 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode discover --batch_size 250
+
+python composition.py --dataset 6_0km_2017 --outputdir output/discovery_6km_2nlayer_2nhid_bs250_dec29 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode discover --batch_size 250 --nlayers 2 --nhid 2
+
+python composition.py --dataset 3_0km_2017 --outputdir output/discovery_3km_dec29 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 700 --datagpu true --mode discover
+
+python composition.py --dataset 3_0km_2017 --outputdir output/discovery_3km_bs250_dec29 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 700 --datagpu true --mode discover --batch_size 250
+
+python composition.py --dataset 6_0km_2017 --outputdir output/discovery_3km_2nlayer_2nhid_bs250_dec29 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 100 --width 147 --nepoch 700 --datagpu true --mode discover --batch_size 250 --nlayers 2 --nhid 2
 # python composition.py --dataset 6_0km_17 --outputdir test/oneseven --manualSeed 5718 --xp 6km_stnn_r --mode refine --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode refine
