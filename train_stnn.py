@@ -205,9 +205,7 @@ for e in pb:
         score = rmse(x_pred, test_data)
         print(score)
     logger.log('test_epoch.rmse', score)
-
 #    logger.log('test_epoch.ts', {t: {'rmse': scr.item()} for t, scr in enumerate(score_ts)})
-
     if (e+1) % 10  == 0:
         print("Epoch {} | train {} | test rmse {}".format(e+1, logs_train['loss'], score))
     # checkpoint

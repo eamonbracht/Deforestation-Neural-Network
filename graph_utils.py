@@ -64,9 +64,7 @@ def graph_fancy(data, ax, res, year, title, bars, norm = None, save = False, err
     divider = make_axes_locatable(ax)                          # set size of color bar
     if colorbar:
         cax = divider.append_axes("right", size="5%", pad=0.05)    # set size of color bar
-
         clb = plt.colorbar(im, cax=cax)
-
         clb.ax.tick_params(labelsize=20)
         if error:
             clb.ax.set_title(r'$\frac{\mathrm{pred}-\mathrm{act}}{10000}*100$', fontsize = 20)
@@ -82,7 +80,7 @@ def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)$', text) ]
 
 def get_directories(dir):
-    test = [''.join(x[0].split("/")[-1:]) for x in os.walk(os.path.join('test', dir))]
+    test = [''.join(x[0].split("/")[-1:]) for x in os.walk(os.path.join('output', dir))]
     directories = []
     digits = []
     for i in test:
@@ -92,7 +90,7 @@ def get_directories(dir):
     digits = np.unique(digits)
     sdirects = {}
     for i in digits:
-        sdirects["{}km_2018".format(i)] = list(filter(lambda x: x[0] == str(i), directories))
+        sdirects["{}km_2017".format(i)] = list(filter(lambda x: x[0] == str(i), directories))
     for i, x in sdirects.items():
         x.sort(key=natural_keys)
     return sdirects
