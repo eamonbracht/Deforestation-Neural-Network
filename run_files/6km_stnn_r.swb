@@ -3,7 +3,7 @@
 #SBATCH --job-name="discover6km"
 #SBATCH --output="io/pytorch.%j.%N.out"
 #SBATCH --error="io/pytorch.%j.%N.err"
-#SBATCH --partition=gpux4
+#SBATCH --partition=gpux2
 #SBATCH --export=ALL
 #module load wmlce
 module load powerai
