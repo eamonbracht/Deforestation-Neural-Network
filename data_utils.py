@@ -134,7 +134,18 @@ def save_array_to_csv(data, name):
     """
     np.savetxt("data/defor"+name+".csv", data, delimiter = ",")
 
-def make_relation(type_rel, data, save, combine):
+def delete_exclude(cords, exclude, data):
+    del_val = []
+    count = 0
+    for pos, i in enumerate(cords[:]):
+        if i[0] in exclude:
+            del_val.append(pos)
+            count+=1
+    mod_cords = np.delete(cords, del_val, axis = 0)
+    data[mod_cords[:, 0], mod_cords[:, 1]] = 1
+    return data
+
+def make_relation(type_rel, shape, exclude, save, combine):
     """Function to create binary relationship tensor for data based on
     cardinality. Creates north, south, east, west, northwest, northeast,
     southwest and southeast realtions.
@@ -152,7 +163,7 @@ def make_relation(type_rel, data, save, combine):
     Args:
         type_rel (str): Denoting which type of relation to make.
             TODO: Create a way to dynamically select which is best
-        data (int): num rows, :int: num cols): Array specificying the
+        shape (int): num rows, :int: num cols): Array specificying the
             dimensions of the area of interest.
         save (bool): If true, save relational matrix, if False dont.
         combine (str): If true, flatten arrays into single array.
@@ -161,7 +172,7 @@ def make_relation(type_rel, data, save, combine):
         Pytorch tensor for cadinality relationship.
 
     """
-    i, j = data
+    i, j = shape
     size = i*j
     directions = type_rel
     if type_rel[0] == "all":
@@ -171,90 +182,69 @@ def make_relation(type_rel, data, save, combine):
     granular_relations = {}
     for direc in directions:
         granular_relations[direc] = np.zeros((size, size), dtype = "float")
-    # print("i {} j {}".format(i, j))
+
     for key, value in granular_relations.items():
         if key == "north":
             num_cords = j*(i-1)
             i_cords = np.arange(j,num_cords+j)
             j_cords = np.arange(0, num_cords)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                value[cord] = 1
+            coordinates = np.array(list(zip(i_cords, j_cords)))
+            value = delete_exclude(coordinates, exclude, value)
         # south
-        if key == "south":
+        elif key == "south":
             num_cords = j*(i-1)
             i_cords = np.arange(0, num_cords)
             j_cords = np.arange(j, num_cords+j)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                value[cord] = 1
+            coordinates = np.array(list(zip(i_cords, j_cords)))
+            value = delete_exclude(coordinates, exclude, value)
         # east
-        if key == "east":
+        elif key == "east":
             num_cords = (i*j)-1
             i_cords = np.arange(0, num_cords)
             j_cords = np.arange(1, num_cords+1)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                if (not cord[0] == 0 and cord[1] % j == 0):
-                    pass
-                else:
-                    value[cord] = 1
+            concat_cords = list(zip(i_cords, j_cords))
+            coordinates = [x for x in concat_cords if not(not x[0] == 0 and x[1] % j == 0)]
+            value = delete_exclude(coordinates, exclude, value)
         # west
-        if key == "west":
+        elif key == "west":
             num_cords = (i*j)-1
             i_cords = np.arange(1, num_cords+1)
             j_cords = np.arange(0, num_cords)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                if (not cord[1] == 0 and cord[0] % j == 0):
-                    pass
-                else:
-                    value[cord] = 1
+            concat_cords = list(zip(i_cords, j_cords))
+            coordinates = [x for x in concat_cords if not(not x[1] == 0 and x[0] % j == 0)]
+            value = delete_exclude(coordinates, exclude, value)
         # northeast
-        if key == "northeast":
+        elif key == "northeast":
             num_cords = j*(i-1)+1
             i_cords = np.arange(j-1, num_cords+j-1)
             j_cords = np.arange(0, num_cords)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                if(cord[1] == 0 or cord[1] % j == 0):
-                    pass
-                else:
-                    value[cord] = 1
+            concat_cords = list(zip(i_cords, j_cords))
+            coordinates = [x for x in concat_cords if not(x[1] == 0 or x[1] % j == 0)]
+            value = delete_exclude(coordinates, exclude, value)
         # northwest
-        if key == "northwest":
+        elif key == "northwest":
             num_cords = j*(i-1)-1
             i_cords = np.arange(j+1, num_cords+j+1)
             j_cords = np.arange(0, num_cords)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                if(not cord[1] == 0 and (cord[0]) % j == 0):
-                    pass
-                else:
-                    value[cord] = 1
+            concat_cords = list(zip(i_cords, j_cords))
+            coordinates = [x for x in concat_cords if not(x[1] == 0 and x[0] % j == 0)]
+            value = delete_exclude(coordinates, exclude, value)
         # southeast
-        if key == "southeast":
+        elif key == "southeast":
             num_cords = j*(i-1)-1
             i_cords = np.arange(0, num_cords)
             j_cords = np.arange(j+1, num_cords+j+1)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                if(not cord[0] == 0 and (cord[1]) % j == 0):
-                    pass
-                else:
-                    value[cord] = 1
+            concat_cords = list(zip(i_cords, j_cords))
+            coordinates = [x for x in concat_cords if not(not x[0] == 0 and x[1] % j == 0)]
+            value = delete_exclude(coordinates, exclude, value)
         # southwest
-        if key == "southwest":
+        else:
             num_cords = j*(i-1)+1
             i_cords = np.arange(0, num_cords)
             j_cords = np.arange(j-1, num_cords+j)
-            coordinates = list(zip(i_cords, j_cords))
-            for cord in coordinates:
-                if(cord[0] == 0 or (cord[0]) % j == 0):
-                    pass
-                else:
-                    value[cord] = 1
-#    tensor = dictionary_to_array(granular_relations, False)
+            concat_cords = list(zip(i_cords, j_cords))
+            coordinates = [x for x in concat_cords if (not x[0] == 0 and x[0] % j == 0)]
+            value = delete_exclude(coordinates, exclude, value)
     tensor = np.stack(granular_relations.values(), 1)
     if(combine == True):
         out = np.zeros((size, size), dtype = "bool")
