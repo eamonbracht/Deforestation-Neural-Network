@@ -56,7 +56,9 @@ def import_data(data_dir, file, dims, makerel):
     opt.periode = opt.nt
     # loading data
     csv = os.path.join(data_dir, file)
+    exclude = os.path.join(data_dir, "tree_cover", file)
     reduced = np.genfromtxt(csv, delimiter = ",")
+    tree_cover = np.genfromtxt()
     print(reduced.shape)
     reduced = np.expand_dims(reduced, axis = 2)
     data = torch.from_numpy(reduced)

@@ -8,12 +8,12 @@ import torch
 
 def progress(prog, processing, total):
     """Output progress bar to the terminal to track progress of job. Useful for data_utils when generating yearly deforestation losses.
-    
+
     Args:
         prog (int): iteration status of job prog < total
         processinig (str): descriptor of what step is currently being performed.
         total (int): total number of steps expected. total > prog.
-    
+
     Yields:
         Progress bar printed to the terminal.
     Examples:
@@ -35,6 +35,12 @@ def rmse(x_pred, x_target, reduce=True):
         return x_pred.sub(x_target).pow(2).sum(-1).sqrt().mean().item()
     return x_pred.sub(x_target).pow(2).sum(2).sqrt().mean(1).squeeze()
 
+def nprmse(target, pred_data):
+    if type(target) is not np.ndarray:
+        target = np.asarray(target)
+    if type(pred_data) is not np.ndarray:
+        pred_data = np.asarray(pred_data)
+    return np.nanmean(((np.subtract(target, pred_data)**2)**.5).squeeze(2), axis = 1)
 
 def normalize(mx):
     """Row-normalize matrix"""

@@ -80,7 +80,7 @@ def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)$', text) ]
 
 def get_directories(dir):
-    test = [''.join(x[0].split("/")[-1:]) for x in os.walk(os.path.join('output', dir))]
+    test = [''.join(x[0].split("/")[-1:]) for x in os.walk(os.path.join('test', dir))]
     directories = []
     digits = []
     for i in test:

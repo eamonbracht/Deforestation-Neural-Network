@@ -18,6 +18,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+./shape_files
 figs/
 *.tif
 lib/

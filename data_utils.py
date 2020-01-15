@@ -412,7 +412,7 @@ def roundup(x, ks):
 
 
 
-def grid_area(years, ks, suffix, save = False, keep_nan = False):
+def grid_area(years, ks, suffix, mean = False, save = False, keep_nan = False):
     """Function that does a convolutional interpolation of 3D array
 
     Uses a classic DNN convolutional summation with a stide length equal to the
@@ -459,7 +459,10 @@ def grid_area(years, ks, suffix, save = False, keep_nan = False):
             if np.isnan(temp).all():
                 resized[:, i, j] = np.nan
             else:
-                resized[:, i, j] = np.nansum(temp, axis = 1)
+                if mean:
+                    resized[:, i, j] = np.nanmean(temp, axis = 1)
+                else:
+                    resized[:, i, j] = np.nansum(temp, axis = 1)
     if keep_nan:
         resized = np.nan_to_num(resized, 0)
     if save:
@@ -557,17 +560,17 @@ def lasso_window(x, y, lasso, opt):
     cy = lasso-1 if y > lasso else y-1
     return x1, x2, y1, y2, cx, cy
 
-def data_to_lasso(data, opt, lasso1, lasso2, start_year, out_dir, file_name,
+def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_name,
     save = False):
-    keep_values = np.argwhere(~np.isnan(data[0]))
+    keep_values = np.argwhere(~np.isnan(input_data[10]))
     output_data = np.zeros((keep_values.shape[0]*opt.years, lasso2-lasso1+5))
     idn = 10
     for pos, (y, x) in enumerate(keep_values):
         for i in range(opt.years):
-            output_data[pos*opt.years+i, 0:5] = [idn, y, x, start_year+i, data[i, y, x]]
+            output_data[pos*opt.years+i, 0:5] = [idn, y, x, start_year+i, input_data[i, y, x]]
         for lasso in range(lasso1, lasso2):
             x1, x2, y1, y2, cx, cy = lasso_window(x, y, lasso, opt)
-            las = data[:, y1:y2, x1:x2]
+            las = np.copy(input_data[:, y1:y2, x1:x2])
             try:
                 las[:, cy, cx] = np.nan
             except IndexError:
