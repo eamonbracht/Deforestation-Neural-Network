@@ -203,7 +203,6 @@ for e in pb:
 #        score_ts = rmse(x_pred, test_data, reduce=False)
 #        x_pred.to('cpu')
         score = rmse(x_pred, test_data)
-        print(score)
     logger.log('test_epoch.rmse', score)
 #    logger.log('test_epoch.ts', {t: {'rmse': scr.item()} for t, scr in enumerate(score_ts)})
     if (e+1) % 10  == 0:
