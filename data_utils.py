@@ -138,7 +138,7 @@ def delete_exclude(cords, exclude, data):
     del_val = []
     count = 0
     for pos, i in enumerate(cords[:]):
-        if i[0] in exclude:
+        if np.any(np.isin(i, exclude[:])):
             del_val.append(pos)
             count+=1
     mod_cords = np.delete(cords, del_val, axis = 0)
