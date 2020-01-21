@@ -136,11 +136,13 @@ def save_array_to_csv(data, name):
 
 def delete_exclude(cords, exclude, data):
     del_val = []
-    count = 0
-    for pos, i in enumerate(cords[:]):
-        if np.any(np.isin(i, exclude[:])):
+    # data = np.copy(input_data)
+    cords = np.array(cords)
+    print(cords.shape)
+    for pos, i in enumerate(cords[:, 0]):
+        if np.any(np.isin(i, exclude)):
             del_val.append(pos)
-            count+=1
+
     mod_cords = np.delete(cords, del_val, axis = 0)
     data[mod_cords[:, 0], mod_cords[:, 1]] = 1
     return data
@@ -227,7 +229,7 @@ def make_relation(type_rel, shape, exclude, save, combine):
             i_cords = np.arange(j+1, num_cords+j+1)
             j_cords = np.arange(0, num_cords)
             concat_cords = list(zip(i_cords, j_cords))
-            coordinates = [x for x in concat_cords if not(x[1] == 0 and x[0] % j == 0)]
+            coordinates = [x for x in concat_cords if not(x[1] != 0 and x[0] % j == 0)]
             value = delete_exclude(coordinates, exclude, value)
         # southeast
         elif key == "southeast":
@@ -243,7 +245,7 @@ def make_relation(type_rel, shape, exclude, save, combine):
             i_cords = np.arange(0, num_cords)
             j_cords = np.arange(j-1, num_cords+j)
             concat_cords = list(zip(i_cords, j_cords))
-            coordinates = [x for x in concat_cords if (not x[0] == 0 and x[0] % j == 0)]
+            coordinates = [x for x in concat_cords if not(x[0] == 0 or x[0] % j == 0)]
             value = delete_exclude(coordinates, exclude, value)
     tensor = np.stack(granular_relations.values(), 1)
     if(combine == True):
