@@ -54,9 +54,19 @@ def import_data(data_dir, file, parm):
     broken_data = np.array(broken_data)
     return opt, broken_data
 
-def get_relations(opt):
+def tc_to_linearcord(data, height):
+    output = []
+    for i,j in data:
+        output.append(i*height+j)
+    output = np.array(output, dtype = int)
+
+def get_relations(opt, data):
+    print("getrel", data.shape)
+    exclude = np.argwhere(np.isnan(data[0]))
+    # exclude_linear = tc_to_linearcord(exclude, opt.height)
     dims = [opt.tsize, opt.tsize]
-    x = du.make_relation(["all"], dims, save = False, combine = False)
+    x = du.make_relation(["all"], dims, exclude, save = False,
+    combine = False)
     relations = x.float()
     for i in relations:
     	i = normalize(i).unsqueeze(1)

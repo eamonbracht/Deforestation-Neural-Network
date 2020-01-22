@@ -85,10 +85,9 @@ for count, area in enumerate(data):
     print(opt.xp)
     if np.sum(area) == 0:
         continue
-    area_tensor = torch.from_numpy(area)
-    area_tensor = area_tensor.type(torch.FloatTensor)
-    area_tensor = area_tensor.unsqueeze(2)
-    relations = get_relations(opt)
+    relations = get_relations(opt, area)
+    area_tensor = (np.nan_to_num(area, nan = 0))
+    area_tensor = torch.from_numpy(area).type(torch.FloatTensor).unsqueeze(2)
     if(opt.nt_data != opt.nt):
         area_tensor = area_tensor[opt.nt_data-opt.nt:]
     print("area tensor", area_tensor.shape)

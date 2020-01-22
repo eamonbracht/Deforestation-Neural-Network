@@ -138,13 +138,13 @@ def delete_exclude(cords, exclude, data):
     del_val = []
     # data = np.copy(input_data)
     cords = np.array(cords)
-    print(cords.shape)
     for pos, i in enumerate(cords[:, 0]):
         if np.any(np.isin(i, exclude)):
             del_val.append(pos)
 
     mod_cords = np.delete(cords, del_val, axis = 0)
     data[mod_cords[:, 0], mod_cords[:, 1]] = 1
+    print(cords.shape, " -> ", mod_cords.shape)
     return data
 
 def make_relation(type_rel, shape, exclude, save, combine):
@@ -455,7 +455,7 @@ def grid_area(years, ks, suffix, mean = False, save = False, keep_nan = False):
                     resized[:, i, j] = np.nanmean(temp, axis = 1)
                 else:
                     resized[:, i, j] = np.nansum(temp, axis = 1)
-    if keep_nan:
+    if not keep_nan:
         resized = np.nan_to_num(resized, 0)
     if save:
         np.savetxt("data/{}km_{}.csv".format(res, suffix),

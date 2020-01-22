@@ -15,4 +15,4 @@ cd ~/deforestation/Deforestation-Neural-Network/
 
 
 
-python composition.py --dataset 3km_2018 --outputdir test/comp/ --manualSeed 2021 --xp stnn_3km_lr --patience 100 --height 100 --width 147 
+python composition.py --dataset 3km_2017 --outputdir test/comp/ --manualSeed 2021 --xp stnn_3km_lr --patience 100 --height 100 --width 147 
