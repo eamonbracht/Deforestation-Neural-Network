@@ -5,8 +5,8 @@
 #SBATCH --error="io/pytorch.%j.%N.err"
 #SBATCH --partition=gpux2
 #SBATCH --export=ALL
-#module load wmlce
-module load powerai
+module load wmlce
+#module load powerai
 cd ~/deforestation/Deforestation-Neural-Network/
 
 # python train_stnn.py --dataset 6_0km_2017 --outputdir output/refine_6km_excludetc_bs250_nhid2 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2
