@@ -145,7 +145,6 @@ def train_network(opt, train_data, test_data, relations):
         model.eval()
         with torch.no_grad():
             x_pred, _ = model.generate(opt.nt - opt.nt_train)
-    #        print("x_pred", x_pred.size(), "test_data", test_data.size())
             # score_ts = rmse(x_pred, test_data, reduce=False)
             score = rmse(x_pred, test_data)
     #        if (e+1)%50 == 0:

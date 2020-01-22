@@ -180,7 +180,7 @@ def make_relation(type_rel, shape, exclude, save, combine):
     if type_rel[0] == "all":
         directions = ["north", "south", "east", "west", "northeast",
             "northwest", "southeast", "southwest"]
-    print("Constructing", directions, "relation", end = "\r")
+    print("Constructing", directions, "relation", end = '\r')
     granular_relations = {}
     for direc in directions:
         granular_relations[direc] = np.zeros((size, size), dtype = "float")
@@ -542,7 +542,24 @@ def exclude_values(mp, data, other_data = None):
     return data
 
 def lasso_window(x, y, lasso, opt):
-    """
+    """ Calculates the x and y bounds for generating a lasso representation of
+    data. If the lasso is larger than the bounds of the dataset, the max or min
+    bound of the data are returned.
+
+    Args:
+        x (int): loci of lasso x dir
+        y (int): loci of lasso y dir
+        lasso (int): size of lasso
+        opt (DotDict): Dictionary of parameters containing the model space
+            analysis parameters.
+
+    Returns:
+        x1: minimum x bound
+        x2: maximum x bound
+        y1: minimum y bound
+        y2: maximum y bound
+        cx: x cordinate of loci
+        cy: y cordiinate of loci
     """
     x1 = x - lasso if x > lasso else 0
     x2 = x + lasso if x + lasso < opt.shape[1] else opt.shape[1]-1
@@ -554,6 +571,9 @@ def lasso_window(x, y, lasso, opt):
 
 def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_name,
     save = False):
+    """
+
+    """
     keep_values = np.argwhere(~np.isnan(input_data[10]))
     output_data = np.zeros((keep_values.shape[0]*opt.years, lasso2-lasso1+5))
     idn = 10

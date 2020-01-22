@@ -56,7 +56,8 @@ def import_data(data_dir, file, dims, makerel):
     opt.periode = opt.nt
     # loading data
     csv = os.path.join(data_dir, file)
-    exclude = os.path.join(data_dir, "tree_cover", file)
+    exclude_dir = os.path.join(data_dir, "tree_cover", file)
+    exclude = np.genfromtxt(exclude_dir, delimiter = ",")
     reduced = np.genfromtxt(csv, delimiter = ",")
     print(reduced.shape)
     reduced = np.expand_dims(reduced, axis = 2)
