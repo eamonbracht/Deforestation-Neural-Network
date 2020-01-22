@@ -56,11 +56,11 @@ def import_data(data_dir, file, dims, makerel):
     opt.periode = opt.nt
     # loading data
     csv = os.path.join(data_dir, file)
-    exclude_dir = os.path.join(data_dir, "tree_cover", file)
-    exclude = np.genfromtxt(exclude_dir, delimiter = ",")
+    # exclude_dir = os.path.join(data_dir, "tree_cover", file)
+    # exclude = np.genfromtxt(exclude_dir, delimiter = ",")
     area = np.genfromtxt(csv, delimiter = ",")
-    area_tensor = np.argwhere(np.isnan(area))
-    area_final = (np.nan_to_num(area_tensor, nan = 0))
+    exclude = np.argwhere(np.isnan(area))
+    area_final = np.nan_to_num(area)
     print(reduced.shape)
     data = torch.from_numpy(np.expand_dims(area_final, axis = 2)).float()
     if makerel:

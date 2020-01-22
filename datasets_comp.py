@@ -34,7 +34,8 @@ def import_data(data_dir, file, parm):
     opt.new_dims = new_dims
     step_h = int(new_dims[1]/tsize)
     step_v = int(new_dims[0]/tsize)
-    pad_data = np.zeros((parm.nt_data, new_dims[0], new_dims[1]))
+    pad_data = np.empty((parm.nt_data, new_dims[0], new_dims[1]))
+    pad_data[:] = np.nan
     xmin = int((new_dims[1] - dims[1])/2)
     xmax = new_dims[1]-(new_dims[1]-dims[1]-xmin)
     ymin = int((new_dims[0] - dims[0])/2)
