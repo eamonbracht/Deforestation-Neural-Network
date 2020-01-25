@@ -13,7 +13,7 @@ import re
 
 
 # 0 forested, -1 = deforested
-def expand_years(raster, name = "temp", culm = False, save=False):
+def expand_years(raster, num_years, name = "temp", culm = False, save=False):
     """Takes in array of deforestation data and parses it into an set of arrays
     stored in dictionary for the yearly deofrestation progression for each
     pixel then pickles and returns that dictionary. Array contains 0 for no loss
@@ -32,7 +32,6 @@ def expand_years(raster, name = "temp", culm = False, save=False):
     shape = raster.shape
     print(shape)
     raster_mask = ma.getmask(raster)
-    num_years = 17
     years = ma.zeros((num_years, *shape))
     print(years.shape)
     for year in range(1, num_years+1):
@@ -575,8 +574,10 @@ def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_nam
 
     """
     keep_values = np.argwhere(~np.isnan(input_data[10]))
+    print(keep_values.shape)
     output_data = np.zeros((keep_values.shape[0]*opt.years, lasso2-lasso1+5))
     idn = 10
+    print(opt.years)
     for pos, (y, x) in enumerate(keep_values):
         for i in range(opt.years):
             output_data[pos*opt.years+i, 0:5] = [idn, y, x, start_year+i, input_data[i, y, x]]
@@ -586,7 +587,7 @@ def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_nam
             try:
                 las[:, cy, cx] = np.nan
             except IndexError:
-                print(lasso, x1, x2, y1, y2, cx, cy, x, y)
+                print("error", lasso, x1, x2, y1, y2, cx, cy, x, y)
             if np.all(np.isnan(las)):
                 mean = [0]*opt.years
             else:

@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 import json
 from collections import defaultdict
-
+import numpy as np
 import torch
 
 
@@ -36,9 +36,9 @@ def rmse(x_pred, x_target, reduce=True):
     return x_pred.sub(x_target).pow(2).sum(2).sqrt().mean(1).squeeze()
 
 def nprmse(target, pred_data):
-    if type(target) is not np.ndarray:
+    if isinstance(target, np.ndarray):
         target = np.asarray(target)
-    if type(pred_data) is not np.ndarray:
+    if isinstance(pred_data, np.ndarray):
         pred_data = np.asarray(pred_data)
     return np.nanmean(((np.subtract(target, pred_data)**2)**.5).squeeze(2), axis = 1)
 

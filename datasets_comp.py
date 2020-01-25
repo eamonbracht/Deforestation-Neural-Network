@@ -6,8 +6,9 @@ import data_utils as du
 from utils import DotDict, normalize
 from data_utils import roundup
 
-def dataset_factory(parm):
+def dataset_factory(opt):
     # get dataset
+    parm = DotDict(opt)
     try:
         opt, data = import_data(parm.datadir, '{}.csv'.format(parm.dataset), parm)
     except:

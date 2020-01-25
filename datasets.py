@@ -19,6 +19,8 @@ def dataset_factory(data_dir, name, height, width, k=1, makerel = True):
         for n in range(k - 1):
             new_rels.append(torch.stack([new_rels[-1][:, r].matmul(new_rels[0][:, r]) for r in range(relations.size(1))], 1))
         relations = torch.cat(new_rels, 1)
+    else:
+        relations = []
     # split train / test
     train_data = data[:opt.nt_train]
     test_data = data[opt.nt_train:]
@@ -55,16 +57,18 @@ def import_data(data_dir, file, dims, makerel):
     opt.nd = 1
     opt.periode = opt.nt
     # loading data
-    csv = os.path.join(data_dir, file)
+    csv_nan = os.path.join(data_dir, file)
+    csv = os.path.join(data_dir, file[:-8]+'.csv')
+
     # exclude_dir = os.path.join(data_dir, "tree_cover", file)
     # exclude = np.genfromtxt(exclude_dir, delimiter = ",")
+    ex = np.genfromtxt(csv_nan, delimiter = ",")
+    exclude = np.argwhere(np.isnan(ex))
     area = np.genfromtxt(csv, delimiter = ",")
-    exclude = np.argwhere(np.isnan(area))
+
     area_final = np.nan_to_num(area)
-    print(reduced.shape)
     data = torch.from_numpy(np.expand_dims(area_final, axis = 2)).float()
     if makerel:
-        print("failed")
         x = du.make_relation(["all"], dims, exclude, save = False, combine = False)
         relations = x.float()
         for i in relations:
