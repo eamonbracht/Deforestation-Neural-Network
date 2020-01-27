@@ -62,6 +62,7 @@ def import_data(data_dir, file, dims, makerel):
 
     # exclude_dir = os.path.join(data_dir, "tree_cover", file)
     # exclude = np.genfromtxt(exclude_dir, delimiter = ",")
+    # if optexclude:
     ex = np.genfromtxt(csv_nan, delimiter = ",")
     exclude = np.argwhere(np.isnan(ex))
     area = np.genfromtxt(csv, delimiter = ",")

@@ -20,6 +20,7 @@ def import_data(data_dir, file, parm):
     # dataset configuration
     dims = [parm.height, parm.width]
     tsize = parm.tsize
+    stride = parm.stride
     numtrain = parm.nt_train
     print(dims[0], dims[1])
     opt = DotDict()
@@ -33,10 +34,10 @@ def import_data(data_dir, file, parm):
     data = reduced.reshape(parm.nt_data,dims[0], dims[1])
     new_dims = [roundup(dims[0], tsize), roundup(dims[1], tsize)]
     opt.new_dims = new_dims
-    step_h = int(new_dims[1]/tsize)
-    step_v = int(new_dims[0]/tsize)
     pad_data = np.empty((parm.nt_data, new_dims[0], new_dims[1]))
     pad_data[:] = np.nan
+    step_x = int((new_dims[1] - tsize)/stride) + 1
+    step_y = int((new_dims[0] - tsize)/stride) + 1
     xmin = int((new_dims[1] - dims[1])/2)
     xmax = new_dims[1]-(new_dims[1]-dims[1]-xmin)
     ymin = int((new_dims[0] - dims[0])/2)
@@ -44,8 +45,8 @@ def import_data(data_dir, file, parm):
     pad_data[:, ymin:ymax, xmin:xmax] = data
     broken_data = []
     count = 0
-    for j in np.arange(0, new_dims[1], tsize):
-        for i in np.arange(0, new_dims[0], tsize):
+    for j in np.arange(0, step_x*stride, stride):
+        for i in np.arange(0, step_y*stride, stride):
             data = np.expand_dims(pad_data[:, i:i+tsize, j:j+tsize], axis = 0)
             data = data.reshape(1, parm.nt_data, -1)
             if count == 0:
@@ -64,7 +65,12 @@ def tc_to_linearcord(data, height):
 
 def get_relations(opt, data):
     print("getrel", data.shape)
-    exclude = np.argwhere(np.isnan(data[0]))
+    if opt.exclude:
+        print("excluding perimeter values")
+        exclude = np.argwhere(np.isnan(data[0]))
+    else:
+        print("not excluding values")
+        exclude = np.empty(0)
     # exclude_linear = tc_to_linearcord(exclude, opt.height)
     dims = [opt.tsize, opt.tsize]
     x = du.make_relation(["all"], dims, exclude, save = False,

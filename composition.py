@@ -66,6 +66,8 @@ p.add('--modeldir',     type = str, help = "directory of model for prediction", 
 # -- convolution
 p.add('--ksize',    type = int, help = 'size of kernel used to grid area', default = 0)
 p.add('--tsize',    type = int, help = 'dimension of area to break area into for training', default = 50)
+p.add('--exclude',  type = str, help = 'whether or not to exclude edge values', default = False)
+p.add('--stride', type = int, help = 'stride length', default = 50)
 opt = DotDict(vars(p.parse_args()))
 opt.mode = opt.mode if opt.mode in ('refine', 'discover') else None
 print("training area {}".format(opt.dataset))
