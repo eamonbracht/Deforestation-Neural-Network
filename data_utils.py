@@ -462,7 +462,7 @@ def grid_area(years, ks, suffix, mean = False, save = False, keep_nan = False):
     return resized
 
 
-def recombine_crop(predictions, mp):
+def recombine_crop(predictions, opt):
     """Greates a compositional prediction from a set np arrays.
 
     Args:
@@ -476,30 +476,50 @@ def recombine_crop(predictions, mp):
         predicton range. Visualizes the final position in the array
 
     """
-    comp = np.zeros((mp.n_pred, *mp.new_dims))
-    quad_dims = [int(x/mp.tsize) for x in mp.new_dims]
+    print(opt.new_dims)
+    comp = np.empty((opt.n_pred, *opt.new_dims))
+    comp.fill(np.nan)
+    if opt.stride is None:
+        opt.stride = opt.tsize
+    quad_dims = [int(x/opt.stride)-1 for x in opt.new_dims]
+    print(quad_dims)
     count = 0
+    print(opt.stride, opt.tsize)
+    overlap = opt.stride != opt.tsize
     for key, i in predictions.items():
         curval = int(re.findall(r'\d+$', key)[-1])
         while count+1 != curval:
             print(" no matching file adding zeros")
-            quadrant = np.zeros((mp.n_pred, mp.tsize, mp.tsize))
+            quadrant = np.zeros((opt.n_pred, opt.tsize, opt.tsize))
             xpos = int((count)/(quad_dims[1]-1))
             ypos = int((count)%quad_dims[0])
             print("appending zeros to y: {}, x: {}".format(ypos, xpos))
-            comp[:, ypos*mp.tsize:(ypos+1)*mp.tsize,
-            xpos*tsize:(xpos+1)*mp.tsize] += quadrant
+            comp[:, ypos*opt.tsize:(ypos+1)*opt.tsize,
+            xpos*tsize:(xpos+1)*opt.tsize] += quadrant
             count +=1
-        quadrant = np.asarray(i).reshape(mp.n_pred, mp.tsize, mp.tsize)
-        xpos = int((count)/(quad_dims[1]-1))
+        quadrant = np.asarray(i).reshape(opt.n_pred, opt.tsize, opt.tsize)
+        xpos = int((count)/(quad_dims[0]))
         ypos = int((count)%quad_dims[0])
-        comp[:, ypos*mp.tsize:(ypos+1)*mp.tsize,
-            xpos*mp.tsize:(xpos+1)*mp.tsize] += quadrant
+        print("ypos {},{} xpos {},{}".format(ypos, ypos*opt.stride, xpos, xpos*opt.stride))
+        cords = lambda pos, multiplier : (
+            pos * multiplier, pos * multiplier + opt.tsize)
+        if overlap:
+            ymin, ymax = cords(ypos, opt.stride)
+            xmin, xmax = cords(xpos, opt.stride)
+            area_to_merge = np.copy(comp[:, ymin:ymax, xmin:xmax])
+            new_values = np.isnan(area_to_merge)
+            non_zero = area_to_merge != np.nan
+            if quadrant[non_zero].any():
+                comp[:, ymin:ymax, xmin:xmax][non_zero] = (quadrant[non_zero]+ area_to_merge[non_zero])/2.0
+            if new_values.any():
+                comp[:, ymin:ymax, xmin:xmax][new_values] = quadrant[new_values]
+        else:
+            comp[:, ypos*opt.tsize:(ypos+1)*opt.tsize,xpos*opt.tsize:(xpos+1)*opt.tsize] += quadrant
         count += 1
-    xmin = int((mp.new_dims[1] - mp.shape[1])/2)
-    xmax = mp.new_dims[1]-(mp.new_dims[1]-mp.shape[1]-xmin)
-    ymin = int((mp.new_dims[0] - mp.shape[0])/2)
-    ymax = mp.new_dims[0]-(mp.new_dims[0]-mp.shape[0]-ymin)
+    xmin = int((opt.new_dims[1] - opt.shape[1])/2)
+    xmax = opt.new_dims[1]-(opt.new_dims[1]-opt.shape[1]-xmin)
+    ymin = int((opt.new_dims[0] - opt.shape[0])/2)
+    ymax = opt.new_dims[0]-(opt.new_dims[0]-opt.shape[0]-ymin)
     print("{}:{} \t {}:{}".format(xmin, xmax, ymin, ymax))
     unpad = comp[:, ymin:ymax, xmin:xmax]
     plt.imshow(unpad[-1])
