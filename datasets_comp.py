@@ -35,7 +35,7 @@ def import_data(data_dir, file, parm):
     reduced = np.genfromtxt(csv, delimiter = ",")
     print(reduced.shape)
     data = reduced.reshape(parm.nt_data,dims[0], dims[1])
-    new_dims = [roundup(dims[0], tsize), roundup(dims[1], tsize)]
+    new_dims = [roundup(dims[0], tsize, stride), roundup(dims[1], tsize, stride)]
     opt.new_dims = new_dims
     pad_data = np.empty((parm.nt_data, new_dims[0], new_dims[1]))
     pad_data[:] = np.nan

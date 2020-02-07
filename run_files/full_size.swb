@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#SBATCH --job-name="discover6km"
+#SBATCH --job-name="2km"
 #SBATCH --output="io/pytorch.%j.%N.out"
 #SBATCH --error="io/pytorch.%j.%N.err"
-#SBATCH --partition=gpux2
+#SBATCH --partition=gpux4
 #SBATCH --export=ALL
 module load wmlce
 #module load powerai
@@ -29,4 +29,4 @@ cd ~/deforestation/Deforestation-Neural-Network/
 #
 # python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/activation --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --activation tanh
 
-python composition.py --dataset 2_0km_2018_nan --outputdir output/2km_bs1000/s25bs1000 --xp 2km_stnn_r --patience 100 --l1_rel 1e-5 --height 149  --width 220 --nepoch 700 --datagpu true --mode refine --batch_size 1000 --nlayers 2 --nhid 2 --stride 25 --exclude True --nt_train 15 --nt 18 --nt_data 18
+python composition.py --dataset 2_0km_2018_nan --outputdir output/2km_refine/s25bs1000 --xp 2km_stnn_r --patience 100 --l1_rel 1e-5 --height 149  --width 220 --nepoch 700 --datagpu true --mode refine --batch_size 1000 --nlayers 2 --nhid 2 --stride 35 --exclude True --nt_train 15 --nt 18 --nt_data 18

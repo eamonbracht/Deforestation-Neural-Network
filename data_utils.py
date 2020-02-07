@@ -395,8 +395,8 @@ def import_json(directory):
     except:
         print("File does not exist")
 
-def roundup(x, ks):
-    x_new = int(math.ceil(x / float(ks))) * ks
+def roundup(x, tsize, stride):
+    x_new = math.ceil((x-tsize)/stride))*stride+tsize
     print("converting {}   ->   {}".format(x, x_new))
     return x_new
 
