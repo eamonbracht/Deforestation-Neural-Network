@@ -11,20 +11,22 @@ cd ~/deforestation/Deforestation-Neural-Network/
 
 # python train_stnn.py --dataset 6_0km_2017 --outputdir output/refine_6km_excludetc_bs250_nhid2 --xp 6km_stnn_r --patience 100 --l1_rel 1e-8 --height 50 --width 74 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2
 
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/s10exT --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 10 --exclude True
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/s10exT --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 10 --exclude True
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/s10exF --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 10 --exclude False
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/l1rel --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/nlayers --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --stride 50 --exclude False
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/nhid --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nhid 2 --stride 50 --exclude False
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/nz2 --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --nz 2
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/dropout_f --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --dropout_f .1
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/dropout_d --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --dropout_d .1
+#
+# python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/activation --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --activation tanh
 
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/s10exF --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 10 --exclude False
-
-python composition.py --dataset 3_0km_2017_nan --outputdir output/l1rel --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False
-
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/nlayers --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --stride 50 --exclude False
-
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/nhid --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nhid 2 --stride 50 --exclude False
-
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/nz2 --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --nz 2
-
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/dropout_f --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --dropout_f .1
-
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/dropout_d --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --dropout_d .1
-
-python composition.py --dataset 3_0km_2017_nan --outputdir output/model_optim/activation --xp 3km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 250 --nlayers 2 --nhid 2 --stride 50 --exclude False --activation tanh
+python composition.py --dataset 2_0km_2018_nan --outputdir output/2km_bs1000/s25bs1000 --xp 2km_stnn_r --patience 100 --l1_rel 1e-5 --height 100 --width 147 --nepoch 700 --datagpu true --mode refine --batch_size 1000 --nlayers 2 --nhid 2 --stride 25 --exclude True

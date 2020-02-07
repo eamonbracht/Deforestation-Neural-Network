@@ -20,7 +20,10 @@ def import_data(data_dir, file, parm):
     # dataset configuration
     dims = [parm.height, parm.width]
     tsize = parm.tsize
-    stride = parm.stride
+    if(parm.stride is None):
+        stride = tsize
+    else:
+        stride = parm.stride
     numtrain = parm.nt_train
     print(dims[0], dims[1])
     opt = DotDict()

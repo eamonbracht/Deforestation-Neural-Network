@@ -479,13 +479,17 @@ def recombine_crop(predictions, opt):
     print(opt.new_dims)
     comp = np.empty((opt.n_pred, *opt.new_dims))
     comp.fill(np.nan)
+    overlap = opt.stride != opt.tsize
+
     if opt.stride is None:
         opt.stride = opt.tsize
-    quad_dims = [int(x/opt.stride)-1 for x in opt.new_dims]
+    if overlap:
+        quad_dims = [int((x-opt.tsize)/opt.stride)+1 for x in opt.new_dims]
+    else:
+        quad_dims = [int((x-opt.tsize)/opt.stride)+1 for x in opt.new_dims]
     print(quad_dims)
     count = 0
     print(opt.stride, opt.tsize)
-    overlap = opt.stride != opt.tsize
     for key, i in predictions.items():
         curval = int(re.findall(r'\d+$', key)[-1])
         while count+1 != curval:
@@ -503,9 +507,9 @@ def recombine_crop(predictions, opt):
         print("ypos {},{} xpos {},{}".format(ypos, ypos*opt.stride, xpos, xpos*opt.stride))
         cords = lambda pos, multiplier : (
             pos * multiplier, pos * multiplier + opt.tsize)
+        ymin, ymax = cords(ypos, opt.stride)
+        xmin, xmax = cords(xpos, opt.stride)
         if overlap:
-            ymin, ymax = cords(ypos, opt.stride)
-            xmin, xmax = cords(xpos, opt.stride)
             area_to_merge = np.copy(comp[:, ymin:ymax, xmin:xmax])
             new_values = np.isnan(area_to_merge)
             non_zero = area_to_merge != np.nan
@@ -514,7 +518,8 @@ def recombine_crop(predictions, opt):
             if new_values.any():
                 comp[:, ymin:ymax, xmin:xmax][new_values] = quadrant[new_values]
         else:
-            comp[:, ypos*opt.tsize:(ypos+1)*opt.tsize,xpos*opt.tsize:(xpos+1)*opt.tsize] += quadrant
+            print(ymin, ymax, xmin, xmax)
+            comp[:, ymin:ymax, xmin:xmax] = quadrant
         count += 1
     xmin = int((opt.new_dims[1] - opt.shape[1])/2)
     xmax = opt.new_dims[1]-(opt.new_dims[1]-opt.shape[1]-xmin)
