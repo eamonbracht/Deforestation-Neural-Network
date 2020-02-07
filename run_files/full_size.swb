@@ -3,9 +3,9 @@
 #SBATCH --job-name="2km"
 #SBATCH --output="io/pytorch.%j.%N.out"
 #SBATCH --error="io/pytorch.%j.%N.err"
-#SBATCH --partition_name=gpux4
-#SBATCH --walltime = 10:00:00
-#SBATCH --export=ALL
+#SBATCH --partition=gpux4
+#SBATCH --cpu_per_gpu=16
+#SBATCH --time=12
 module load wmlce
 #module load powerai
 cd ~/deforestation/Deforestation-Neural-Network/
