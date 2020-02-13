@@ -487,9 +487,7 @@ def recombine_crop(predictions, opt):
         quad_dims = [int((x-opt.tsize)/opt.stride)+1 for x in opt.new_dims]
     else:
         quad_dims = [int((x-opt.tsize)/opt.stride)+1 for x in opt.new_dims]
-    print(quad_dims)
     count = 0
-    print(opt.stride, opt.tsize)
     for key, i in predictions.items():
         curval = int(re.findall(r'\d+$', key)[-1])
         while count+1 != curval:
@@ -504,7 +502,7 @@ def recombine_crop(predictions, opt):
         quadrant = np.asarray(i).reshape(opt.n_pred, opt.tsize, opt.tsize)
         xpos = int((count)/(quad_dims[0]))
         ypos = int((count)%quad_dims[0])
-        print("ypos {},{} xpos {},{}".format(ypos, ypos*opt.stride, xpos, xpos*opt.stride))
+        # print("ypos {},{} xpos {},{}".format(ypos, ypos*opt.stride, xpos, xpos*opt.stride))
         cords = lambda pos, multiplier : (
             pos * multiplier, pos * multiplier + opt.tsize)
         ymin, ymax = cords(ypos, opt.stride)
