@@ -22,14 +22,14 @@ def graph_fancy(data, ax, res, year, title, bars, norm = None, save = False, err
     ax = ax or plt.gca()
 #     plt.subplots(dpi = 500)
     ax.set_ylim([dims[0], 0])
-    cmap = ListedColormap(["white", "tan", "springgreen", "darkgreen"])
-
+    # cmap = ListedColormap(["white", "tan", "springgreen", "darkgreen"])
+    cmap = plt.cm.YlGn
     ax.set_xlim([0, dims[1]])
     if norm is not None:
         im = ax.imshow(data, cmap = cmap,norm = colors.BoundaryNorm(norm, len(norm)), aspect='auto')
 
     else:
-        im = ax.imshow(data, cmap = cmap, aspect='auto')
+        im = ax.imshow(data, cmap = cmap, interpolation = 'gaussian', aspect='auto')
 
     if bars:
         ax.set_xticks(np.arange(-.5, dims[1], 1), minor=True)
@@ -42,9 +42,9 @@ def graph_fancy(data, ax, res, year, title, bars, norm = None, save = False, err
         scalebar = ScaleBar(res) # 1 pixel = 0.2 meter
         ax.add_artist(scalebar)
     if title == "" and year != "":
-        ax.set_title("{}".format(year), fontsize = 8)
+        ax.set_title("{}".format(year), fontsize = 5)
     elif title != "":
-        ax.set_title("{}, {}".format(title, year), fontsize = 8)
+        ax.set_title("{}, {}".format(title, year), fontsize = 5)
 
     for shape in sf.shapeRecords():
         # end index of each components of map

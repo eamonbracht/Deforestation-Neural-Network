@@ -511,8 +511,11 @@ def recombine_crop(predictions, opt):
             area_to_merge = np.copy(comp[:, ymin:ymax, xmin:xmax])
             new_values = np.isnan(area_to_merge)
             non_zero = area_to_merge != np.nan
+            non_zero_small = np.all(quadrant[non_zero] < 30)
             if quadrant[non_zero].any():
-                comp[:, ymin:ymax, xmin:xmax][non_zero] = (quadrant[non_zero]+ area_to_merge[non_zero])/2.0
+                # comp[:, ymin:ymax, xmin:xmax][non_zero] = (abs(quadrant[non_zero])+ abs(area_to_merge[non_zero]))/2.0
+                # comp[:, ymin:ymax, xmin:xmax][non_zero] = np.fmax(abs(quadrant[non_zero]),abs(area_to_merge[non_zero]))
+                comp[:, ymin:ymax, xmin:xmax][non_zero] = (abs(quadrant[non_zero])+ abs(area_to_merge[non_zero]))/2.0
             if new_values.any():
                 comp[:, ymin:ymax, xmin:xmax][new_values] = quadrant[new_values]
         else:
