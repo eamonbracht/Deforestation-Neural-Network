@@ -179,7 +179,7 @@ def make_relation(type_rel, shape, exclude, save, combine):
     if type_rel[0] == "all":
         directions = ["north", "south", "east", "west", "northeast",
             "northwest", "southeast", "southwest"]
-    print("Constructing", directions, "relation", end = '\r')
+    # print("Constructing", directions, "relation", end = '\r')
     granular_relations = {}
     for direc in directions:
         granular_relations[direc] = np.zeros((size, size), dtype = "float")
@@ -254,7 +254,7 @@ def make_relation(type_rel, shape, exclude, save, combine):
             out = out + i
         tensor = np.expand_dims(out, axis = 1)
     tensor = torch.from_numpy(tensor)
-    print("{} Construction Successful".format(type_rel))
+    # print("{} Construction Successful".format(type_rel))
     if save:
         print("saving as csv")
         np.savetxt("data/"+type_rel+".csv", relation, delimiter = ",")
@@ -586,12 +586,12 @@ def lasso_window(x, y, lasso, opt):
         cx: x cordinate of loci
         cy: y cordiinate of loci
     """
-    x1 = x - lasso if x > lasso else 0
-    x2 = x + lasso if x + lasso < opt.shape[1] else opt.shape[1]-1
-    y1 = y - lasso if y > lasso else 0
-    y2 = y + lasso if y + lasso < opt.shape[0] else opt.shape[0]-1
-    cx = lasso-1 if x > lasso else x-1
-    cy = lasso-1 if y > lasso else y-1
+    x1 = x - lasso if x >= lasso else 0
+    x2 = x + lasso if x + lasso < opt.shape[1] else opt.shape[1]
+    y1 = y - lasso if y >= lasso else 0
+    y2 = y + lasso if y + lasso < opt.shape[0] else opt.shape[0]
+    cx = x if x < lasso else lasso
+    cy = y if y < lasso else lasso
     return x1, x2, y1, y2, cx, cy
 
 def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_name,
@@ -599,7 +599,7 @@ def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_nam
     """
 
     """
-    keep_values = np.argwhere(~np.isnan(input_data[10]))
+    keep_values = np.argwhere(~np.isnan(input_data[0]))
     print(keep_values.shape)
     output_data = np.zeros((keep_values.shape[0]*opt.years, lasso2-lasso1+5))
     idn = 10
@@ -609,7 +609,7 @@ def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_nam
             output_data[pos*opt.years+i, 0:5] = [idn, y, x, start_year+i, input_data[i, y, x]]
         for lasso in range(lasso1, lasso2):
             x1, x2, y1, y2, cx, cy = lasso_window(x, y, lasso, opt)
-            las = np.copy(input_data[:, y1:y2, x1:x2])
+            las = np.copy(input_data[:, y1:y2+1, x1:x2+1])
             try:
                 las[:, cy, cx] = np.nan
             except IndexError:
@@ -621,8 +621,9 @@ def data_to_lasso(input_data, opt, lasso1, lasso2, start_year, out_dir, file_nam
             for i in range(opt.years):
                 output_data[pos*opt.years+i, lasso-lasso1+5] = mean[i]
         idn+=1
-        print('\r', "{:>5}/{} \t {}%".format(pos, keep_values.shape[0],
-            round(pos/(keep_values.shape[0])*100, 3)), end = "")
+        if pos % 100 == 0:
+            print('\r', "{:>5}/{} \t {}%".format(pos, keep_values.shape[0],
+                round(pos/(keep_values.shape[0])*100, 3)), end = "")
     df = pd.DataFrame(data=output_data)
     cols = [str(i) for i in range(lasso1, lasso2)]
     df.columns = ['id2', 'y_c', 'x_c', 'year','gt', *cols]
