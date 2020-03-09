@@ -77,7 +77,7 @@ def get_relations(opt, data):
     # exclude_linear = tc_to_linearcord(exclude, opt.height)
     dims = [opt.tsize, opt.tsize]
     x = du.make_relation(["all"], dims, exclude, save = False,
-    combine = False)
+    combine = True)
     relations = x.float()
     for i in relations:
     	i = normalize(i).unsqueeze(1)
